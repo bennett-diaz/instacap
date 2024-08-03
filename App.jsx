@@ -1,1 +1,1 @@
-<div>hello world</div>
+console.log('hello world')
