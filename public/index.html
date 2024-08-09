@@ -1,0 +1,61 @@
+<!-- TODO: remove maximum-scale=1 and inline scripts (for separation of concerns) -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="theme-color" content="transparent">
+    <meta name="description" content="Generate influencer-worthy captions for your next post">
+
+    <!-- 'default' results in a white status bar with black text,
+'black' results in a black status bar with white text
+'black-translucent' results in a transparent background with white text.
+Additionally, this status bar floats above your content -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- TODO: add splash screens here -->
+
+    <!-- <script>
+    (function () {
+      var isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      var isStaging = window.location.hostname.includes('instacap-staging');
+
+      var link = document.createElement('link');
+      link.rel = 'icon';
+
+      if (isDevelopment) {
+        link.href = '%PUBLIC_URL%/logos/instacap_logo_v2_invert.png';
+        document.title = 'Instacap (dev)';
+      } else if (isStaging) {
+        link.href = '%PUBLIC_URL%/logos/instacap_logo72_v1.png';
+        document.title = 'Instacap (staging)';
+      } else {
+        link.href = '%PUBLIC_URL%/logos/instacap_logo72_v3.png';
+        document.title = 'Instacap';
+      }
+      document.head.appendChild(link);
+    })();
+  </script> -->
+
+
+</head>
+
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+
+    <script>
+        // if ('serviceWorker' in navigator) {
+        //   window.addEventListener('load', () => {
+        //     navigator.serviceWorker.register('/service-worker-workbox.js');
+        //   });
+        // }
+
+    </script>
+</body>
+
+</html>
