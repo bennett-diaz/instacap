@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Button, ButtonText } from '@gluestack-ui/themed';
 import { startChat, sendMessage } from '../utils/geminiTemp';
+
 
 const Results = () => {
     const [chat, setChat] = useState(null);
