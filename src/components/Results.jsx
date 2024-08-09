@@ -1,6 +1,5 @@
-// src/components/Results.jsx
 import React, { useState, useEffect } from 'react';
-import { Box, Text, Input, Button, VStack } from '@gluestack-ui/themed';
+// import { Box, Text, Input, Button, VStack } from '@gluestack-ui/themed';
 import { startChat, sendMessage } from '../utils/geminiTest';
 
 const Results = () => {
