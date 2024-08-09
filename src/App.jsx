@@ -1,6 +1,5 @@
-
 import React from 'react';
-// import { Button, ButtonText } from '@gluestack-ui/themed';
+import Results from './components/Results'; // Adjust the path if necessary
 
 
 function App() {
@@ -9,18 +8,9 @@ function App() {
     return (
         <div>
             <h1>Hello, Instacap!</h1>
+            <Results />
         </div>
     );
-
-    // return (
-    //     <GluestackUIProvider config={config}>
-    //         <Box>
-    //             <Button>
-    //                 <ButtonText>Awesome Button!</ButtonText>
-    //             </Button>
-    //         </Box>
-    //     </GluestackUIProvider>
-    // );
 }
 
 export default App;

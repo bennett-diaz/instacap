@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import { Box, Text, Input, Button, VStack } from '@gluestack-ui/themed';
-import { startChat, sendMessage } from '../utils/geminiTest';
+import { startChat, sendMessage } from '../utils/geminiTemp';
 
 const Results = () => {
     const [chat, setChat] = useState(null);
@@ -14,6 +13,8 @@ const Results = () => {
             if (apiKey) {
                 const newChat = await startChat(apiKey);
                 setChat(newChat);
+            } else {
+                console.error('API key not found');
             }
         };
         initChat();
@@ -35,24 +36,30 @@ const Results = () => {
     };
 
     return (
-        <Box p={4}>
-            <VStack space={4}>
+        <div style={{ padding: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {messages.map((msg, index) => (
-                    <Text key={index}>
-                        <Text fontWeight="bold">{msg.sender}: </Text>
+                    <p key={index}>
+                        <strong>{msg.sender}: </strong>
                         {msg.text}
-                    </Text>
+                    </p>
                 ))}
-                <Input
+                <input
+                    type="text"
                     value={input}
-                    onChangeText={setInput}
+                    onChange={(e) => setInput(e.target.value)}
                     placeholder="Type your message..."
+                    style={{ padding: '8px', marginBottom: '8px' }}
                 />
-                <Button onPress={handleSend} disabled={isLoading || !chat}>
+                <button
+                    onClick={handleSend}
+                    disabled={isLoading || !chat}
+                    style={{ padding: '8px', cursor: 'pointer' }}
+                >
                     {isLoading ? 'Sending...' : 'Send'}
-                </Button>
-            </VStack>
-        </Box>
+                </button>
+            </div>
+        </div>
     );
 };
 
