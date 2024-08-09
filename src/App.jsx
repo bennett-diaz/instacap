@@ -1,5 +1,5 @@
 import React from 'react';
-import Results from './components/Results'; // Adjust the path if necessary
+import Results from './components/Results'; 
 
 
 function App() {

@@ -1,0 +1,173 @@
+/* this hides the anonymous login option */
+.firebaseui-idp-button[data-provider-id="anonymous"] {
+    display: none !important;
+}
+
+/* this is the overall container for the firebase ui snippet */
+.firebaseui-container {
+    /* background: rgba(16, 36, 221, 0.05); */
+    /* margin-bottom: 15px; */
+    /* border-radius: 20px; */
+    /* box-shadow: none; */
+    padding-top: 0px !important;
+    padding-bottom: 10px;
+
+}
+
+/* this is a container for just the sign-in options */
+/* .firebaseui-container.firebaseui-page-provider-sign-in {
+    background: pink;
+    box-shadow: none;
+    min-height: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+} */
+
+
+/* this affects the container for inside the button */
+.firebaseui-idp-button {
+    /* width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important; */
+    background: #6366f1 !important;
+    /* border-radius: 4px !important; */
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+}
+
+
+/* this affects the text in the login options buttons */
+.firebaseui-idp-text-long {
+    /* font-size: 16px; */
+    font-size: 1rem;
+}
+
+/* this is the container for just the SMS button */
+/* .firebaseui-idp-button.mdl-button.mdl-js-button.mdl-button--raised.firebaseui-idp-phone.firebaseui-id-idp-button {
+    background: #6366f1 !important;
+} */
+
+/* this affects the phone icon container */
+/* .firebaseui-idp-icon-wrapper {
+    padding: 8px !important;
+} */
+
+/* this affects the phone icon itself */
+/* .firebaseui-idp-icon {
+    width: 1rem !important;
+    height: 1rem !important;
+} */
+
+/* This affects the container for 'By continuing, you are indicating..' disclaimer' */
+.firebaseui-card-footer.firebaseui-provider-sign-in-footer {
+    width: 100% !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.firebaseui-container.firebaseui-page-provider-sign-in.firebaseui-id-page-provider-sign-in.firebaseui-use-spinner {
+    padding-bottom: 0 !important;
+
+}
+
+
+/* This affects the text for 'By continuing, you are indicating..' disclaimer' */
+.firebaseui-tos.firebaseui-tospp-full-message {
+    /* display: none; */
+    /* color: pink; */
+    /* margin-top: 15px; */
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+    font-size: 0.85rem;
+    /* line-height: 1.4;  */
+    /* text-align: center; */
+    margin-bottom: 0px;
+    /* padding: 0 0px !important; */
+
+}
+
+/* AFTER CLICKING INTO LOGIN METHOD */
+
+/* this affects the 'Verify your phone number' header */
+.firebaseui-card-header {
+    display: none;
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+/* This affects the small blue text Terms of Service and Privacy Policy */
+.firebaseui-tos-list.firebaseui-tos {
+    display: none;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 20px;
+}
+
+/* This affects the spacing below the ToS */
+/* .firebaseui-tos-list.firebaseui-tos li {
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: yellowgreen !important;
+} */
+
+
+
+/* this affects the phone number entry form */
+.firebaseui-card-content {
+    padding: 0 !important;
+    background: white !important;
+
+}
+
+
+/* .firebaseui-recaptcha-container {
+    padding: 10px 10px !important;
+    margin: 0rem 0rem !important;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+
+} */
+
+/* this affects the CANCEL and VERIFY buttons */
+.firebaseui-card-actions {
+    padding: 0 !important;
+
+}
+
+.firebaseui-card-footer {
+    padding: 0 !important;
+    margin-top: 10px;
+
+}
+
+/* This affects text the disclaimer 'By tapping Verify...'*/
+.firebaseui-tos.firebaseui-phone-sms-notice {
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 0px;
+}
+
+/* this affects the 6-digit code instructions */
+/* .firebaseui-subtitle,
+.firebaseui-text {
+    color: rgba(69, 121, 227, 0.87);
+
+    font-size: 22px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+} */
+
+/* this affects the continue button */
+/* .firebaseui-form-actions .mdl-button--raised.mdl-button--colored.firebaseui-button {
+    background: pink;
+
+    color: pink;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+} */
