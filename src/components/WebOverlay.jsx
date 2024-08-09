@@ -14,7 +14,7 @@ const WebOverlay = ({ onClose }) => {
         <Box position="fixed" top="0" left="0" width="100%" height="100%" zIndex="900">
             <LinearGradient colors={gradients.purple} start={[0, 0]} end={[1, 1]} as={ExpoLinearGradient} style={gradientStyles}>
                 <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(52, 152, 219, 0.2)' }} />
-                <HStack width="100%" height="100%" paddingTop="$16"> {/* Added paddingTop to account for NavBar */}
+                <HStack width="100%" height="100%" paddingTop="$16"> 
                     {/* Image container */}
                     <Box width="50%" height="100%" justifyContent="center" alignItems="center" padding="2rem">
                         <Box width="100%" height="100%" maxWidth="600px" maxHeight="900px" position="relative">
