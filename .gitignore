@@ -1,3 +1,8 @@
+# custom
+service-worker-template.js
+firebase-debug.log
+/z_notes
+
 # dependencies
 /node_modules
 /.pnp
