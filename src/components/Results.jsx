@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, ButtonText } from '@gluestack-ui/themed';
 import { startChat, sendMessage } from '../utils/geminiTemp';
+import { testFile } from '../utils/geminiApi';
 
 
 const Results = () => {
@@ -8,6 +9,9 @@ const Results = () => {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+
+    // const fileInfo = testFile(process.env.REACT_APP_API_KEY);
+    // console.log(fileInfo);
 
     useEffect(() => {
         const initChat = async () => {
