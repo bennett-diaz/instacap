@@ -27,7 +27,7 @@ export const RemoteConfigProvider = ({ children }) => {
                 };
                 setRemoteConfig(configValues);
                 confirmRemoteConfigDefaults();
-                // console.log('Activated last config: ', myReConfigObj._storageCache.activeConfig.tabs)
+                console.log('Activated last config: ', myReConfigObj._storageCache.activeConfig.tabs)
             } catch (error) {
                 console.error('Error activating last remote config:', error);
             }
@@ -35,7 +35,7 @@ export const RemoteConfigProvider = ({ children }) => {
         const fetchNext = async () => {
             try {
                 await fetchConfig(myReConfigObj);
-                // console.log('Fetched next config: ', myReConfigObj._storageCache.activeConfig.tabs)
+                console.log('Fetched next config: ', myReConfigObj._storageCache.activeConfig.tabs)
                 activate(myReConfigObj)
             } catch (error) {
                 console.error('Error fetching next remote config:', error);
