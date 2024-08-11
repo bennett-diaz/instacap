@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Button, ButtonText } from '@gluestack-ui/themed';
 import { startChat, sendMessage } from '../utils/geminiTemp';
 import { testFile } from '../utils/geminiApi';
+import { useImage } from '../contexts/imageContext';
+
+
 
 
 const Results = () => {
@@ -9,6 +12,9 @@ const Results = () => {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+
+    const { urlBox, isUrlBoxValid } = useImage()
+    
 
     // const fileInfo = testFile(process.env.REACT_APP_API_KEY);
     // console.log(fileInfo);

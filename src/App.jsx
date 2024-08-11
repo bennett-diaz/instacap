@@ -3,12 +3,16 @@ import { GluestackUIProvider, Box, Button, ButtonText, Text } from '@gluestack-u
 import { config } from "./styles/gluestack_config/gluestack-ui.config"
 import Results from './components/Results';
 import WebOverlay from './components/WebOverlay';
+import BottomBar from './components/BottomBar';
 import { perf } from './firebaseConfig'
+import { ImageProvider } from "./contexts/imageContext"
+import { useLayout } from './contexts/layoutContext';
+
+
 
 
 function App() {
-    console.log('hello world')
-    const [isWeb, setIsWeb] = useState(true);
+    const { isWeb, setIsWeb } = useLayout();
 
     const handleOverlayClose = () => {
         setIsWeb(false);
@@ -17,15 +21,18 @@ function App() {
 
     return (
         <GluestackUIProvider config={config}>
-            <Box>
-                {isWeb && <WebOverlay onClose={handleOverlayClose} />}
-                <Text>Hello Instacap!</Text>
-                <Results />
-                <Button>
-                    <ButtonText>Hello world</ButtonText>
-                </Button>
+            <ImageProvider>
+                <Box>
+                    {isWeb && <WebOverlay onClose={handleOverlayClose} />}
+                    <Text>Hello Instacap!</Text>
+                    <Results />
+                    <Button>
+                        <ButtonText>Hello world</ButtonText>
+                    </Button>
+                    {/* <BottomBar/> */}
 
-            </Box>
+                </Box>
+            </ImageProvider>
         </GluestackUIProvider>
     );
 }
