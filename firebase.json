@@ -1,19 +1,22 @@
 {
-  "hosting": {
-    "public": "build",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+  "projects": {
+    "default": "instacap-gemini-firebase",
+    "staging": "instacap-staging"
   },
-  "functions": {
-    "source": "functions"
+  "targets": {
+    "instacap-staging": {
+      "hosting": {
+        "instacap-staging": [
+          "instacap-staging"
+        ]
+      }
+    },
+    "instacap-gemini-firebase": {
+      "hosting": {
+        "production": [
+          "instacap-gemini-firebase"
+        ]
+      }
+    }
   }
 }

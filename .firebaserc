@@ -2,5 +2,21 @@
   "projects": {
     "default": "instacap-gemini-firebase",
     "staging": "instacap-staging"
+  },
+  "targets": {
+    "instacap-staging": {
+      "hosting": {
+        "instacap-staging": [
+          "instacap-staging"
+        ]
+      }
+    },
+    "instacap-gemini-firebase": {
+      "hosting": {
+        "production": [
+          "instacap-gemini-firebase"
+        ]
+      }
+    }
   }
 }
