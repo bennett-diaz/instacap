@@ -14,5 +14,5 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_INSTACAP_GEMINI_FIREBASE }}
-          channelId: live
+          channelId: pr-${{ github.event.number }}
           projectId: instacap-gemini-firebase
