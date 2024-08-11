@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "instacap-gemini-firebase"
+    "default": "instacap-gemini-firebase",
+    "staging": "instacap-staging"
   }
 }
