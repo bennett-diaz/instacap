@@ -1,25 +1,48 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "name": "Instacap",
+  "short_name": "Instacap",
+  "description": "Instacap PWA",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "logo192.png",
+      "src": "logos/instacap_logo48_v1.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "48x48"
     },
     {
-      "src": "logo512.png",
+      "src": "logos/instacap_logo72_v3.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "logos/instacap_logo96_v1.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "logos/instacap_logo144_v1.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "logos/instacap_logo168_v1.png",
+      "type": "image/png",
+      "sizes": "168x168"
+    },
+    {
+      "src": "logos/instacap_logo192_v1.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "logos/instacap_logo512_v1.png",
       "type": "image/png",
       "sizes": "512x512"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  ]
 }
