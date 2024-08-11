@@ -1,6 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getPerformance } from "firebase/performance";
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -16,9 +18,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 // export const myPerformanceObj = getPerformance();
+export const functions = getFunctions(app);
 export const perf = getPerformance(app);
 
 
+if (process.env.NODE_ENV === 'development') {
+    connectFunctionsEmulator(functions, 'localhost', 5001);
+}
 
 // to deploy to firebase URL, run this in the CLI:
 // firebase deploy
