@@ -1,3 +1,10 @@
+# custom
+*-export.json
+.runtimeconfig.json
+firebase-debug.log
+*-debug.log
+
+
 # dependencies
 /node_modules
 /.pnp

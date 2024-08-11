@@ -3,6 +3,7 @@ import { GluestackUIProvider, Box, Button, ButtonText, Text } from '@gluestack-u
 import { config } from "./styles/gluestack_config/gluestack-ui.config"
 import Results from './components/Results';
 import WebOverlay from './components/WebOverlay';
+import { perf } from './firebaseConfig'
 
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
         <GluestackUIProvider config={config}>
             <Box>
                 {isWeb && <WebOverlay onClose={handleOverlayClose} />}
-                <Text>Hello, Instacap!</Text>
+                <Text>Hello Instacap!</Text>
                 <Results />
                 <Button>
                     <ButtonText>Hello world</ButtonText>
