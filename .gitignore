@@ -1,7 +1,9 @@
 # custom
-service-worker-template.js
+*-export.json
+.runtimeconfig.json
 firebase-debug.log
-/z_notes
+*-debug.log
+
 
 # dependencies
 /node_modules
