@@ -19,7 +19,7 @@ function App() {
         <GluestackUIProvider config={config}>
             <Box>
                 {isWeb && <WebOverlay onClose={handleOverlayClose} />}
-                <Text>Hello, Instacap!</Text>
+                <Text>Hello Instacap!</Text>
                 <Results />
                 <Button>
                     <ButtonText>Hello world</ButtonText>
