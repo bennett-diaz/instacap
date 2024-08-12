@@ -76,7 +76,9 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
             if (mode === 'gemini') {
                 const generateGeminiCaptions = async () => {
                     try {
-                        const newCaptionSet = await fetchGemini();
+                        // const newCaptionSet = await fetchGemini();
+                        const imageDescription = "a blueberry pie";
+                        const newCaptionSet = await fetchGemini(imageDescription);
                         console.log('newCaptionSet:', newCaptionSet)
                         setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionSet : [...captionSets, ...newCaptionSet]);
                         setWorkflow(workflowStages.IMGRENDER);

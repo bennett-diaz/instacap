@@ -61,10 +61,11 @@ export const callGemini = async () => {
     }
 };
 
-export const fetchGemini = async () => {
+export const fetchGemini = async (imageDescription) => {
     try {
         const fetchGemini = httpsCallable(functions, 'fetchGemini');
-        const captionResponse = await fetchGemini(); 
+        console.log('img description sent:', imageDescription);
+        const captionResponse = await fetchGemini({ imageDescription }); 
         console.log('fetchGemini:', captionResponse.data);
 
         const rawCaptionString = captionResponse.data.rawCaptionString; 
