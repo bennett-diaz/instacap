@@ -15,8 +15,10 @@ import CTA from './components/CTA';
 import WebOverlay from './components/WebOverlay';
 
 import Results from './components/Results';
+import Results1 from './components/Results1';
 // import CaptionSet from './components/CaptionSet';
-// import ImgRender from './components/ImgRender';
+import CaptionSet1 from './components/CaptionSet1';
+import ImgRender from './components/ImgRender';
 import Login from './components/Login';
 import MyAccount from './components/MyAccount';
 
@@ -66,7 +68,7 @@ function App() {
             case 'terms':
                 return <TermsOfService />;
             case 'account':
-              return curUser ? <MyAccount /> : <Login />;
+                return curUser ? <MyAccount /> : <Login />;
             default:
                 return (
                     <ImageProvider>
@@ -90,8 +92,7 @@ function App() {
                                             <>
                                                 <HeroSection />
                                                 <CTA />
-                                                {/* <Results ImgRender={ImgRender} CaptionSet={CaptionSet} /> */}
-                                                <Results/>
+                                                <Results1 ImgRender={ImgRender} CaptionSet={CaptionSet1} />
                                             </>
                                         )}
                                     </ResultsProvider>

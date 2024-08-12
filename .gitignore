@@ -2,6 +2,7 @@
 *-export.json
 .runtimeconfig.json
 firebase-debug.log
+src/utils/gemini-captions.mjs
 *-debug.log
 
 
