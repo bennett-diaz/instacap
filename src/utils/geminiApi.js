@@ -27,16 +27,6 @@ export const testFile = async (apiKey) => {
 }
 
 
-// export const callHelloWorld = async () => {
-//     try {
-//         const helloWorld = httpsCallable(functions, 'helloWorld');
-//         const result = await helloWorld();
-//         console.log('Hello world result:', result.data);
-//     } catch (error) {
-//         console.error('Error calling helloWorld:', error);
-//     }
-// };
-
 export const callHelloWorld = async () => {
     try {
         const url = process.env.NODE_ENV === 'development'
@@ -92,23 +82,9 @@ export const fetchGemini = async () => {
             throw new Error("Unexpected format in Gemini response");
         }
 
-        return parsedCaptions; // Return the parsed captions array
+        return parsedCaptions; 
     } catch (error) {
         console.error("Failed to generate or parse captions:", error.message);
         throw error;
     }
 }
-
-// export const callHelloWorld = async () => {
-//     console.log("entering cloud function callHelloWorld");
-//     try {
-//       const functions = getFunctions(getApp());
-//       const helloWorld = httpsCallable(functions, 'helloWorld');
-//       const result = await helloWorld();
-//       console.log(result.data);
-//       return result.data;
-//     } catch (error) {
-//       console.error("Error calling helloWorld:", error);
-//       throw error;
-//     }
-//   };

@@ -1,7 +1,14 @@
 /* eslint-disable max-len */
+/* eslint-disable no-useless-escape */
+/* eslint-disable no-multiple-empty-lines */
 const {onRequest, onCall} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const {GoogleGenerativeAI} = require("@google/generative-ai");
+const functions = require("firebase-functions");
+const {config} = require("firebase-functions");
+
+
+
 
 /**
  * Hello World function that responds to HTTP requests.
@@ -80,7 +87,8 @@ async function generateCaption(model, imageDescription) {
 
 
 exports.fetchGemini = onCall(async (data, context) => {
-  const API_KEY = "AIzaSyD1GE8VWwM3KOUdoUijfQaj1RiPd40maJQ";
+  // const API_KEY = "AIzaSyD1GE8VWwM3KOUdoUijfQaj1RiPd40maJQ";
+  const API_KEY = process.env.GEMINI_API_KEY || functions.config().gemini.api_key;
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
   console.log("entering fetchGemini cloud function");
