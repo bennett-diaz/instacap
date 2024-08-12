@@ -4,8 +4,9 @@
 const {onRequest, onCall} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const {GoogleGenerativeAI} = require("@google/generative-ai");
-const functions = require("firebase-functions");
-const {config} = require("firebase-functions");
+// const functions = require("firebase-functions");
+const {defineSecret} = require("firebase-functions/params");
+const geminiApiKeySecret = defineSecret("GEMINI_API_KEY_SECRET");
 
 
 
@@ -86,62 +87,25 @@ async function generateCaption(model, imageDescription) {
 }
 
 
-exports.fetchGemini = onCall(async (data, context) => {
-  const API_KEY = process.env.GEMINI_API_KEY || functions.config().gemini.api_key;
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
-  console.log("entering fetchGemini cloud function");
-  console.log("data:", data);
-  const {imageDescription} = data.data;
-  console.log("imageDescription:", imageDescription);
+exports.fetchGemini = onCall(
+    {secrets: [geminiApiKeySecret]},
+    async (data, context) => {
+      const API_KEY = geminiApiKeySecret.value();
+      const genAI = new GoogleGenerativeAI(API_KEY);
+      const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
+      console.log("entering fetchGemini cloud function");
+      console.log("data:", data);
+      const {imageDescription} = data.data;
+      console.log("imageDescription:", imageDescription);
 
-  try {
-    const captionString = await generateCaption(model, imageDescription);
-    logger.info("Raw caption string:", captionString);
+      try {
+        const captionString = await generateCaption(model, imageDescription);
+        logger.info("Raw caption string:", captionString);
 
-    // Return the raw string
-    return {rawCaptionString: captionString};
-  } catch (error) {
-    logger.error("Failed to generate captions:", error);
-    throw new Error("Failed to generate caption");
-  }
-});
-
-
-// exports.fetchGemini = onCall(async (data, context) => {
-//   // const API_KEY = process.env.GEMINI_API_KEY;
-//   const API_KEY = "AIzaSyD1GE8VWwM3KOUdoUijfQaj1RiPd40maJQ";
-//   const genAI = new GoogleGenerativeAI(API_KEY);
-//   const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
-//   console.log("entering fetchGemini cloud function");
-
-//   // const {imageDescription} = data;
-//   const imageDescription = "a man riding a surfboard on a wave";
-//   console.log("imageDescription:", imageDescription);
-
-//   try {
-//     const captionString = await generateCaption(model, imageDescription);
-//     logger.info("Raw caption string:", captionString);
-
-//     let parsedCaptions;
-//     try {
-//       parsedCaptions = JSON.parse(captionString);
-//     } catch (parseError) {
-//       logger.error("Error parsing JSON:", parseError);
-//       throw new Error("Invalid JSON format in Gemini response");
-//     }
-
-//     if (
-//       !Array.isArray(parsedCaptions) ||
-//       parsedCaptions.length === 0 ||
-//       !Array.isArray(parsedCaptions[0])
-//     ) {
-//       throw new Error("Unexpected format in Gemini response");
-//     }
-
-//     return {captions: parsedCaptions};
-//   } catch (error) {
-//     logger.error("Failed to generate or parse captions:", error);
-//     throw new Error("Failed to generate caption");
-//   }
-// });
+        // Return the raw string
+        return {rawCaptionString: captionString};
+      } catch (error) {
+        logger.error("Failed to generate captions:", error);
+        throw new Error("Failed to generate caption");
+      }
+    });
