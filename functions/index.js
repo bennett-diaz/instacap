@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 /* eslint-disable max-len */
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-multiple-empty-lines */
@@ -6,7 +7,16 @@ const logger = require("firebase-functions/logger");
 const {GoogleGenerativeAI} = require("@google/generative-ai");
 // const functions = require("firebase-functions");
 const {defineSecret} = require("firebase-functions/params");
+const admin = require("firebase-admin");
+const {FieldValue} = require("firebase-admin/firestore");
+
+
+
+admin.initializeApp();
 const geminiApiKeySecret = defineSecret("GEMINI_API_KEY_SECRET");
+const db = admin.firestore();
+
+
 
 // import { GoogleAIFileManager } from "@google/generative-ai/server";
 // const mime = require('mime-types');
@@ -32,23 +42,35 @@ const geminiApiKeySecret = defineSecret("GEMINI_API_KEY_SECRET");
 // }
 
 
+async function storeCaptionInFirestore(captionData) {
+  const {text, modelId, prompt, temperature, captionId} = captionData;
+  console.log("captionData:", captionData);
+  const captionRef = db.collection("captions").doc(captionId);
+  console.log("captionRef:", captionRef);
 
-/**
- * Hello World function that responds to HTTP requests.
- * @param {Object} request - The HTTP request object.
- * @param {Object} response - The HTTP response object.
- */
+  try {
+    await captionRef.set({
+      text,
+      modelId,
+      prompt,
+      temperature,
+      voted: false,
+      timestamp: FieldValue.serverTimestamp(),
+    });
+    console.log(`Successfully stored caption with ID: ${captionId}`);
+    return captionId;
+  } catch (error) {
+    console.error(`Error storing caption with ID ${captionId}:`, error);
+    throw error;
+  }
+}
+
+
 exports.helloWorld = onRequest((request, response) => {
   logger.info("Hello logs! From, client", {structuredData: true});
   response.send("Hello from Firebase! From, server");
 });
 
-/**
- * Hello World function that can be called from the client.
- * @param {Object} data - The data passed from the client.
- * @param {Object} context - The context of the function call.
- * @return {Object} A message object.
- */
 exports.helloWorld1 = onCall((data, context) => {
   logger.info("Hello logs! From, client on call - HOT", {
     structuredData: true,
@@ -56,23 +78,13 @@ exports.helloWorld1 = onCall((data, context) => {
   return {message: "Hello on call - HOT RELOAD"};
 });
 
-/**
- * Test function for fetching captions.
- * @param {Object} data - The data passed from the client.
- * @param {Object} context - The context of the function call.
- * @return {Object} A test data object.
- */
+
 exports.fetchCap1 = onCall((data, context) => {
   logger.info("Test data for fetch captions", {structuredData: true});
   return {message: "test data"};
 });
 
-/**
- * Generates captions using the Gemini API.
- * @param {Object} model - The Gemini model instance.
- * @param {string} imageDescription - The description of the image.
- * @return {Promise<string>} The generated caption.
- */
+
 async function generateCaption(model, imageDescription) {
   const generationConfig = {
     temperature: 1,
@@ -123,13 +135,49 @@ exports.fetchGemini = onCall(
       console.log("imageDescription:", imageDescription);
       logger.info("imageDescripipton:", imageDescription);
 
-
       try {
         const captionString = await generateCaption(model, imageDescription);
         logger.info("Raw caption string:", captionString);
 
-        // Return the raw string
-        return {rawCaptionString: captionString};
+        let parsedCaptions;
+        try {
+          parsedCaptions = JSON.parse(captionString);
+        } catch (parseError) {
+          console.error("Error parsing JSON:", parseError);
+          throw new Error("Invalid JSON format in Gemini response");
+        }
+
+        if (!Array.isArray(parsedCaptions) || parsedCaptions.length === 0 || !Array.isArray(parsedCaptions[0])) {
+          throw new Error("Unexpected format in Gemini response");
+        }
+
+        const storedCaptions = await Promise.all(parsedCaptions[0].map(async (captionObj) => {
+          const captionId = Object.keys(captionObj)[0];
+          const captionText = captionObj[captionId];
+          try {
+            await storeCaptionInFirestore({
+              text: captionText,
+              modelId: "gemini-1.5-flash",
+              prompt: imageDescription,
+              temperature: 1,
+              captionId: captionId,
+            });
+            console.log(`Caption stored successfully: ${captionId}`);
+            return captionId;
+          } catch (storeError) {
+            console.error(`Error storing caption ${captionId}:`, storeError);
+            return null;
+          }
+        }));
+
+        const successfullyStored = storedCaptions.filter(id => id !== null);
+        console.log(`Successfully stored ${successfullyStored.length} out of ${parsedCaptions[0].length} captions`);
+
+        if (successfullyStored.length !== parsedCaptions[0].length) {
+          console.warn("Not all captions were stored successfully");
+        }
+
+        return {rawCaptionString: captionString, storedCaptions: successfullyStored};
       } catch (error) {
         logger.error("Failed to generate captions:", error);
         throw new Error("Failed to generate caption");
