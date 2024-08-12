@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, ButtonText } from '@gluestack-ui/themed';
 import { startChat, sendMessage } from '../utils/geminiTemp';
-import { testFile } from '../utils/geminiApi';
+import { testFile, callHelloWorld } from '../utils/geminiApi';
 import { useImage } from '../contexts/imageContext';
-
-
-
 
 const Results = () => {
     const [chat, setChat] = useState(null);
@@ -14,7 +11,7 @@ const Results = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const { urlBox, isUrlBoxValid } = useImage()
-    
+
 
     // const fileInfo = testFile(process.env.REACT_APP_API_KEY);
     // console.log(fileInfo);
@@ -30,6 +27,8 @@ const Results = () => {
             }
         };
         initChat();
+        callHelloWorld();
+        testFile();
     }, []);
 
     const handleSend = async () => {
@@ -46,6 +45,8 @@ const Results = () => {
             setIsLoading(false);
         }
     };
+
+
 
     return (
         <div style={{ padding: '16px' }}>
@@ -70,6 +71,8 @@ const Results = () => {
                 >
                     {isLoading ? 'Sending...' : 'Send'}
                 </button>
+                {/* <Button onPress={callHelloWorld}>
+                </Button> */}
             </div>
         </div>
     );

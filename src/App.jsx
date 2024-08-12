@@ -14,7 +14,7 @@ import HeroSection from './components/HeroSection';
 import CTA from './components/CTA';
 import WebOverlay from './components/WebOverlay';
 
-// import Results from './components/Results';
+import Results from './components/Results';
 // import CaptionSet from './components/CaptionSet';
 // import ImgRender from './components/ImgRender';
 // import Login from './components/Login';
@@ -91,6 +91,7 @@ function App() {
                                                 <HeroSection />
                                                 <CTA />
                                                 {/* <Results ImgRender={ImgRender} CaptionSet={CaptionSet} /> */}
+                                                <Results/>
                                             </>
                                         )}
                                     </ResultsProvider>
