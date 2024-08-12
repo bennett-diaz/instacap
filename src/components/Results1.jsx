@@ -15,8 +15,8 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
     const mode = 'gemini';
     // const mode = 'openai';
 
-    const sumLinkUrl = 'https://backend-instacap.onrender.com/api/image/summarizeUrl';
-    const sumFileUrl = 'https://backend-instacap.onrender.com/api/image/summarizeFIle';
+    // const sumLinkUrl = 'https://backend-instacap.onrender.com/api/image/summarizeUrl';
+    // const sumFileUrl = 'https://backend-instacap.onrender.com/api/image/summarizeFIle';
     const captionUrl = 'https://backend-instacap.onrender.com/api/image/caption';
 
     const { workflow, setWorkflow, workflowStages, captionSets, setCaptionSets, setTones, activeTone, setActiveTone, summary, setSummary, capErrorMsg } = useResults();
@@ -30,6 +30,8 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
     const temperature = remoteConfig.temperature;
     const capModelId = remoteConfig.capModelId;
     const toneSet = remoteConfig.tones;
+    const gemModel = remoteConfig.gemModel;
+    console.log("gemModel:", gemModel)
 
     useEffect(() => {
         // console.log('remoteConfig:', remoteConfig)
@@ -56,21 +58,6 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
                 setWorkflow(workflowStages.CAPTIONING);
                 return;
             }
-            const generateSummary = async () => {
-                console.log('**test genSum**')
-                try {
-                    const data = await fetchSummary(imgUrl, imgForm, sumLinkUrl, sumFileUrl, sumModelId);
-                    setSummary(data[0]["generated_text"]);
-                    setWorkflow(workflowStages.CAPTIONING);
-                } catch (error) {
-                    console.log('Error in summarize endpoint:', error);
-                    const mockData = createErrorCaptions(numCompletions, capErrorMsg);
-                    const mockCaptionSet = await parseCaptions(mockData, true);
-                    setCaptionSets(isEmptyCaptionSet(captionSets) ? [mockCaptionSet] : [...captionSets, mockCaptionSet]);
-                    setWorkflow(workflowStages.IMGRENDER);
-                }
-            };
-            generateSummary();
         } else if (workflow === workflowStages.CAPTIONING) {
             console.log('CAPTIONING WORKFLOW AFTER:', summary)
             if (mode === 'gemini') {
@@ -94,24 +81,6 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
                 return;
             }
 
-            if (summary !== '') {
-                console.log('**test genCap**')
-                const generateCaptions = async () => {
-                    try {
-                        const response = await fetchCaptions(captionUrl, capModelId, summary, sumModelId, numCompletions, temperature, activeTone);
-                        const newCaptionSet = await parseCaptions(response, false);
-                        setCaptionSets(isEmptyCaptionSet(captionSets) ? [newCaptionSet] : [...captionSets, newCaptionSet]);
-                        setWorkflow(workflowStages.IMGRENDER);
-                    } catch (error) {
-                        console.log('Error in caption endpoint:', error);
-                        const mockData = createErrorCaptions(numCompletions, capErrorMsg);
-                        const mockCaptionSet = await parseCaptions(mockData, true);
-                        setCaptionSets(isEmptyCaptionSet(captionSets) ? [mockCaptionSet] : [...captionSets, mockCaptionSet]);
-                        setWorkflow(workflowStages.IMGRENDER);
-                    }
-                };
-                generateCaptions();
-            }
         }
         else if (workflow === workflowStages.RECAPTIONING) {
             console.log('RECAPTIONING WORKFLOW AFTER:', activeTone)

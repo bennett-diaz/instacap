@@ -24,6 +24,7 @@ export const RemoteConfigProvider = ({ children }) => {
                     maxTokens: getNumber(myReConfigObj, 'maxTokens') || myReConfigObj.defaultConfig.maxTokens,
                     tabs: safelyGetJson(myReConfigObj, 'bottomTabs') || myReConfigObj.defaultConfig.bottomTabs,
                     greeting: getString(myReConfigObj, 'greeting') || myReConfigObj.defaultConfig.greeting,
+                    gemModel: getString(myReConfigObj, 'gemModel') || myReConfigObj.defaultConfig.gemModel,
                 };
                 setRemoteConfig(configValues);
                 confirmRemoteConfigDefaults();
