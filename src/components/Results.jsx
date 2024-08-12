@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, ButtonText } from '@gluestack-ui/themed';
 import { startChat, sendMessage } from '../utils/geminiTemp';
-import { testFile, callHelloWorld } from '../utils/geminiApi';
+import { testFile, callHelloWorld1 } from '../utils/geminiApi';
 import { useImage } from '../contexts/imageContext';
 
 const Results = () => {
@@ -27,8 +27,6 @@ const Results = () => {
             }
         };
         initChat();
-        callHelloWorld();
-        testFile();
     }, []);
 
     const handleSend = async () => {
@@ -71,8 +69,8 @@ const Results = () => {
                 >
                     {isLoading ? 'Sending...' : 'Send'}
                 </button>
-                {/* <Button onPress={callHelloWorld}>
-                </Button> */}
+                <Button onPress={callHelloWorld1}>
+                </Button>
             </div>
         </div>
     );

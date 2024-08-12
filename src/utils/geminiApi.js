@@ -27,16 +27,37 @@ export const testFile = async (apiKey) => {
 }
 
 
+// export const callHelloWorld = async () => {
+//     try {
+//         const helloWorld = httpsCallable(functions, 'helloWorld');
+//         const result = await helloWorld();
+//         console.log('Hello world result:', result.data);
+//     } catch (error) {
+//         console.error('Error calling helloWorld:', error);
+//     }
+// };
+
 export const callHelloWorld = async () => {
-    console.log("entering cloud function callHelloWorld")
     try {
-        const helloWorld = httpsCallable(functions, 'helloWorld');
-        const result = await helloWorld();
-        console.log(result.data);
-        return result.data;
+        const url = process.env.NODE_ENV === 'development' 
+            ? 'http://localhost:5001/instacap-gemini-firebase/us-central1/helloWorld'
+            : 'https://us-central1-instacap-gemini-firebase.cloudfunctions.net/helloWorld';
+        
+        const response = await fetch(url);
+        const result = await response.text();
+        console.log('Hello world result:', result);
     } catch (error) {
-        console.error("Error calling helloWorld:", error);
-        throw error;
+        console.error('Error calling helloWorld:', error);
+    }
+};
+
+export const callHelloWorld1 = async () => {
+    try {
+        const helloWorld1 = httpsCallable(functions, 'helloWorld1');
+        const result = await helloWorld1();
+        console.log('Hello world result:', result.data);
+    } catch (error) {
+        console.error('Error calling helloWorld1:', error);
     }
 };
 

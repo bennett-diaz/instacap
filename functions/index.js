@@ -7,7 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {onRequest} = require("firebase-functions/v2/https");
+const {onRequest, onCall} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 
 // Create and deploy your first functions
@@ -17,3 +17,9 @@ exports.helloWorld = onRequest((request, response) => {
   logger.info("Hello logs! From, client", {structuredData: true});
   response.send("Hello from Firebase! From, server");
 });
+
+exports.helloWorld1 = onCall((data, context) => {
+  logger.info("Hello logs! From, client on call", {structuredData: true});
+  return {message: "Hello from Firebase! From, server on call"};
+});
+

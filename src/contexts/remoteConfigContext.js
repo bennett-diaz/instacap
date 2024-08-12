@@ -12,7 +12,7 @@ export const RemoteConfigProvider = ({ children }) => {
         const activateLast = async () => {
             try {
                 await activate(myReConfigObj);
-
+                console.log("myReconfigObj: ", myReConfigObj)
                 const configValues = {
                     capModelId: getString(myReConfigObj, 'capModelId') || myReConfigObj.defaultConfig.capModelId,
                     sumModelId: getString(myReConfigObj, 'sumModelId') || myReConfigObj.defaultConfig.sumModelId,
