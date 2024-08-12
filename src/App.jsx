@@ -17,8 +17,8 @@ import WebOverlay from './components/WebOverlay';
 import Results from './components/Results';
 // import CaptionSet from './components/CaptionSet';
 // import ImgRender from './components/ImgRender';
-// import Login from './components/Login';
-// import MyAccount from './components/MyAccount';
+import Login from './components/Login';
+import MyAccount from './components/MyAccount';
 
 import Drawer from './components/Drawer';
 import PrivacyPolicy from './components/PrivacyPolicy';
@@ -65,8 +65,8 @@ function App() {
                 return <PrivacyPolicy />;
             case 'terms':
                 return <TermsOfService />;
-            // case 'account':
-            //   return curUser ? <MyAccount /> : <Login />;
+            case 'account':
+              return curUser ? <MyAccount /> : <Login />;
             default:
                 return (
                     <ImageProvider>
@@ -98,14 +98,11 @@ function App() {
                                 </ImageProvider>
 
                                 {/* Account tab */}
-                                {/* {tabContent === (tabs.AccountTab?.fixed_id) && (
+                                {tabContent === (tabs.AccountTab?.fixed_id) && (
                                     curUser ? <MyAccount /> : <Login />
-                                )} */}
+                                )}
                             </Box>
-                            {/* <Banner /> */}
                             <BottomBar />
-                            {/* <RestartFab /> */}
-                            {/* <Footer /> */}
                         </ResultsProvider>
                     </ImageProvider>
                 );
