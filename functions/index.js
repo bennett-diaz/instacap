@@ -19,7 +19,12 @@ exports.helloWorld = onRequest((request, response) => {
 });
 
 exports.helloWorld1 = onCall((data, context) => {
-  logger.info("Hello logs! From, client on call", {structuredData: true});
-  return {message: "Hello from Firebase! From, server on call"};
+  logger.info("Hello logs! From, client on call - HOT", {structuredData: true});
+  return {message: "Hello on call - HOT RELOAD"};
+});
+
+exports.fetchCap1 = onCall((data, context) => {
+  logger.info("Test data for fetch captions", {structuredData: true});
+  return {message: "test data"};
 });
 
