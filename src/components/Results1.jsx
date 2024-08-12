@@ -1,7 +1,12 @@
 import { useContext, useRef, useEffect, useState } from 'react';
-import { Box, Text } from '@gluestack-ui/themed';
+import { Box, Text, Button, ButtonText } from '@gluestack-ui/themed';
 import { fetchSummary, createErrorCaptions, parseCaptions, isEmptyCaptionSet, fetchCaptions } from '../utils/apiUtils'
-import { fetchGemini } from '../utils/gemini-captions.mjs';
+// import { fetchGemini } from '../utils/gemini-captions.mjs';
+import { testFile, callHelloWorld1, callGemini, fetchGemini } from '../utils/geminiApi';
+// import { testFile, callHelloWorld1, callGemini } from '../utils/geminiApi';
+
+
+
 import { useImage } from '../contexts/imageContext';
 import { useResults } from '../contexts/resultsContext';
 import { useRemote } from '../contexts/remoteConfigContext';
@@ -9,7 +14,7 @@ import { useRemote } from '../contexts/remoteConfigContext';
 const Results1 = ({ ImgRender, CaptionSet }) => {
     const mode = 'gemini';
     // const mode = 'openai';
-    
+
     const sumLinkUrl = 'https://backend-instacap.onrender.com/api/image/summarizeUrl';
     const sumFileUrl = 'https://backend-instacap.onrender.com/api/image/summarizeFIle';
     const captionUrl = 'https://backend-instacap.onrender.com/api/image/caption';
@@ -72,6 +77,7 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
                 const generateGeminiCaptions = async () => {
                     try {
                         const newCaptionSet = await fetchGemini();
+                        console.log('newCaptionSet:', newCaptionSet)
                         setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionSet : [...captionSets, ...newCaptionSet]);
                         setWorkflow(workflowStages.IMGRENDER);
                     } catch (error) {
@@ -175,6 +181,12 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
                         }
                     }}>
                     <CaptionSet />
+                    <Button onPress={callHelloWorld1}>
+                        <ButtonText>Call Hello World</ButtonText>
+                    </Button>
+                    <Button onPress={callGemini}>
+                        <ButtonText>Call Gemini</ButtonText>
+                    </Button>
                 </Box>
                 <SpacerMobile h="3rem" />
             </Box>
