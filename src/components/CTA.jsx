@@ -126,7 +126,6 @@ const CTA = () => {
                     console.log('About to call uploadFile');
                     setimageBase64(imageBase64);
                     const functions = getFunctions();
-                    console.log('WHEN SENT THROUGH CTA', { imageBase64 })
                     // const res = await uploadFile({ imageBase64 });
                     // const getVertex = httpsCallable(functions, 'getVertex');
                     // const res = await getVertex({ imageBase64 });

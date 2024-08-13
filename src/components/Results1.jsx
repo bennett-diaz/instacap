@@ -65,12 +65,13 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
                     try {
 
                         // console.log('imageBase64 before getVertex:', imageBase64);
-                        console.log('WHEN SENT THROUGH CTA', { imageBase64 })
                         const functions = getFunctions();
                         const getVertex = httpsCallable(functions, 'getVertex');
-                        const newCaptionSet = await getVertex({ imageBase64 });
-                        console.log('NEWCAPTIONSET:', newCaptionSet)
-                        setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionSet : [...captionSets, ...newCaptionSet]);
+                        const res = await getVertex({ imageBase64 });
+                        const newCaptionSet = res.data;
+                        const newCaptionArr = Array.isArray(newCaptionSet) ? [newCaptionSet] : [[newCaptionSet]];
+                        console.log('NEWCAPTIONSET:', newCaptionArr)
+                        setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionArr : [...captionSets, ...newCaptionArr]);
                         setWorkflow(workflowStages.IMGRENDER);
                     } catch (error) {
                         console.error('Error in Gemini caption generation:', error);

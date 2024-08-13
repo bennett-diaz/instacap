@@ -15,6 +15,7 @@ const CaptionSet = () => {
 
     // scroll to the last Bubble of the latest caption set; trigger once image has rendered
     useEffect(() => {
+        console.log('cationSets', captionSets);
         if (workflow === workflowStages.IDLE) {
             if (captionSets.length > 0 && latestCaptionRef.current) {
                 latestCaptionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });

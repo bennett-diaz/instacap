@@ -50,8 +50,8 @@ exports.getVertex = onCall(
           model: model,
           systemInstruction: {
             parts: [
-              {text: "You are an expert social media manager who creates engaging Instagram captions."},
-              {text: "Output three instagram caption ideas for the image or video provied by the user. The format for this is below: it is important that you stick to this structure.You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]"},
+              {text: "You are an expert social media manager who creates clever Instagram captions."},
+              {text: "Output three instagram caption ideas for the image or video provied by the user. Each caption should be no longer than 10 words. The format for this is below: it is important that you stick to this structure.You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]"},
             ],
           },
         });
@@ -84,7 +84,7 @@ exports.getVertex = onCall(
           },
         });
         const result = await chatSession.sendMessage("Hi. Generate some funny captions for the image I provided. ");
-        // console.log("response from Vertex AI:", result);
+        console.log("response from Vertex AI:", result);
 
         const parsed = await parseCaptions(result);
         return parsed;
@@ -108,11 +108,13 @@ async function parseCaptions(data) {
 
     let parsedCaptions;
     try {
-      // Parse the string content of result
-      parsedCaptions = JSON.parse(capSetString);
+      // Remove any trailing semicolons and whitespace
+      const cleanedCapSetString = capSetString.trim().replace(/;$/, "");
+      parsedCaptions = JSON.parse(cleanedCapSetString);
     } catch (parseError) {
       console.error("Error parsing JSON:", parseError);
-      throw new Error("Invalid JSON format in Gemini response");
+      // If JSON parsing fails, try to extract the captions manually
+      parsedCaptions = extractCaptionsManually(capSetString);
     }
 
     if (!Array.isArray(parsedCaptions) || parsedCaptions.length === 0 || !Array.isArray(parsedCaptions[0])) {
@@ -149,11 +151,27 @@ async function parseCaptions(data) {
       console.warn("Not all captions were stored successfully");
     }
 
-    return {result: captions, storedCaptions: successfullyStored};
+    return captions;
   } catch (error) {
     console.error("Failed to generate captions:", error);
     throw new Error("Failed to generate caption");
   }
+}
+
+function extractCaptionsManually(capSetString) {
+  const captionRegex = /"chatcmpl-[^"]+"\s*:\s*"([^"]+)"/g;
+  const captions = [];
+  let match;
+
+  while ((match = captionRegex.exec(capSetString)) !== null) {
+    const captionId = `chatcmpl-${Math.random().toString(36).substr(2, 9)}`;
+    captions.push({
+      [captionId]: match[1],
+      capError: false,
+    });
+  }
+
+  return captions.length > 0 ? [captions] : [];
 }
 
 exports.fetchGemini = onCall(
@@ -236,7 +254,6 @@ async function storeinFirestore(captionData) {
   }
 }
 
-
 exports.helloWorld = onRequest((request, response) => {
   logger.info("Hello logs! From, client", {structuredData: true});
   response.send("Hello from Firebase! From, server");
@@ -255,47 +272,3 @@ exports.fetchCap1 = onCall((data, context) => {
   return {message: "test data"};
 });
 
-// async function generateCaption(model, imageDescription) {
-//   const generationConfig = {
-//     temperature: 1,
-//     topP: 0.95,
-//     topK: 64,
-//     maxOutputTokens: 256,
-//   };
-
-//   const systemPrompt = `You are an expert social media manager. Output three instagram caption ideas for the provided image or video input. The example below contains the desired output. Here is some context:\n1) The user passes in an image or media file\n2) You then provide a list of three captions using the format provided\n2) If the user requests captions a second time, you return a JSON that contains the original list of three, plus the new three. \n3) You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]`;
-
-//   const chatSession = model.startChat({
-//     generationConfig,
-//     history: [
-//       {
-//         role: "user",
-//         parts: [{text: systemPrompt}],
-//       },
-//       {
-//         role: "model",
-//         parts: [{
-//           text: "Understood. I'm ready to create clever, engaging Instagram " +
-//             "captions based on image descriptions you provide. What's the " +
-//             "image you'd like a caption for?",
-//         }],
-//       },
-//     ],
-//   });
-
-//   const result = await chatSession.sendMessage(imageDescription);
-//   // console.log("chat result:", result);
-//   return result.response.text();
-// }
-
-// async function generateCaptionsWithoutImage() {
-//   const API_KEY = geminiApiKeySecret.value();
-//   const genAI = new GoogleGenerativeAI(API_KEY);
-//   const model = genAI.getGenerativeModel({model: "gemini-1.5-pro"});
-
-//   const result = await model.generateContent([
-//     "Generate three witty captions for an Instagram post. Format the response as a JSON array of objects, where each object has a unique ID as the key and the caption as the value.",
-//   ]);
-
-//   return result.response.text();
-// }

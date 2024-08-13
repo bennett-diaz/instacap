@@ -44,7 +44,6 @@ const CaptionSet1 = () => {
     };
 
 
-    // Defining functions directly in JSX, like in your map call within renderCaptionsUser, can lead to performance issues since these functions are re-created on every render. Instead, define these functions outside the JSX or turn them into a component if they have JSX to return.
     const renderCaptionsUser = () => {
         return captionSets.map((captionGeneration, genIndex) => (
             <React.Fragment key={genIndex}>

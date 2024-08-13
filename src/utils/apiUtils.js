@@ -89,6 +89,7 @@ export const isEmptyCaptionSet = (set) => {
 
 
 export const parseCaptions = (apiResponse, isError) => {
+    console.log("apiResponse", apiResponse);
     try {
         if (!apiResponse || !apiResponse.choices || !Array.isArray(apiResponse.choices)) {
             throw new Error("Invalid API response");
