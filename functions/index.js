@@ -21,7 +21,7 @@ const db = admin.firestore();
 exports.getVertex = onCall(
     {secrets: [geminiApiKeySecret, projectIdSecret]},
     async (data) => {
-      const {imageBase64, geminiModel} = data.data;
+      const {imageBase64, geminiModel, topP, topK, temperature} = data.data;
 
       try {
         if (!imageBase64) {
@@ -73,15 +73,15 @@ exports.getVertex = onCall(
           ],
           generationConfig: {
             maxOutputTokens: 256,
-            temperature: 1,
-            topP: 0.95,
-            topK: 64,
+            temperature: temperature,
+            topP: topP,
+            topK: topK,
           },
         });
         const result = await chatSession.sendMessage("Give me caption ideas for the image or video provided by the user. Each caption should be no longer than 10 words.");
         console.log("response from Vertex AI:", result);
 
-        const parsed = await parseCaptions(result);
+        const parsed = await parseCaptions(result, geminiModel, temperature);
         return parsed;
       } catch (error) {
         console.error("Error generating captions:", error);
@@ -90,7 +90,7 @@ exports.getVertex = onCall(
     },
 );
 
-async function parseCaptions(data, geminiModel) {
+async function parseCaptions(data, geminiModel, temperature) {
   try {
     console.log("Raw caption string:", JSON.stringify(data, null, 2));
 
@@ -130,7 +130,7 @@ async function parseCaptions(data, geminiModel) {
           text: captionText,
           modelId: geminiModel,
           prompt: imageBase64,
-          temperature: 1,
+          temperature: temperature,
           captionId: captionId,
         });
         return captionId;
@@ -202,7 +202,7 @@ exports.fetchGemini = onCall(
               text: captionText,
               modelId: geminiModel,
               prompt: imageBase64,
-              temperature: 1,
+              temperature: temperature,
               captionId: captionId,
             });
             return captionId;
