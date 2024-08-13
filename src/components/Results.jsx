@@ -63,9 +63,15 @@ const Results = ({ ImgRender, CaptionSet }) => {
             console.log('CAPTIONING WORKFLOW AFTER:', summary)
             const generateGeminiCaptions = async () => {
                 try {
+                    // const functions = getFunctions();
+                    // const getVertex = httpsCallable(functions, 'getVertex');
+                    // const res = await getVertex({ imageBase64, geminiModel, prompt, temperature, maxTokens, topP, topK });
+                    
                     const functions = getFunctions();
-                    const getVertex = httpsCallable(functions, 'getVertex');
-                    const res = await getVertex({ imageBase64, geminiModel, prompt, temperature, maxTokens, topP, topK });
+                    const fetchGemini = httpsCallable(functions, 'fetchGemini');
+                    const res = await fetchGemini({ imageBase64, geminiModel, prompt, temperature, maxTokens, topP, topK });
+                    return res;
+                    
                     const newCaptionSet = res.data;
                     const newCaptionArr = Array.isArray(newCaptionSet) ? [newCaptionSet] : [[newCaptionSet]];
                     console.log('NEWCAPTIONSET:', newCaptionArr)
