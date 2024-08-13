@@ -1,7 +1,5 @@
 import { createContext, useContext, useState } from 'react';
 
-// TODO: may not need this if using Google File API
-
 export const ImageContext = createContext();
 
 export const ImageProvider = ({ children }) => {

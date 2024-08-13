@@ -9,14 +9,11 @@ export const AuthProvider = ({ children }) => {
     myAuthObj.useDeviceLanguage();
     myAuthObj.settings.appVerificationDisabledForTesting = false;
 
-    // represents currently authenticated user
-    // firebase SDK operations (like signing-in) are done on myAuthObj
     const [curUser, setCurUser] = useState(null);
 
     const firebaseUI = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(myAuthObj);
 
     useEffect(() => {
-        // triggered for signin, signout, load, token expire, change pw, reauth
         const unsubscribe = onAuthStateChanged(myAuthObj, (user) => {
             if (user) {
                 setCurUser(user);
@@ -80,7 +77,6 @@ export const AuthProvider = ({ children }) => {
     }
 
     const handleUIRender = () => {
-        // hide the loader when widget is rendered
         document.getElementById('loader').style.display = 'none';
     }
 
@@ -107,8 +103,7 @@ export const AuthProvider = ({ children }) => {
                 // loginHint: '+11234567890',
                 // whitelistedCountries: ['US']
             },
-
-            firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID
+            // firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID
         ],
         immediateFederatedRedirect: false,
         tosUrl: 'https://instacap.ai/terms',

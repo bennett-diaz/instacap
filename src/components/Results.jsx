@@ -19,7 +19,6 @@ const Results = ({ ImgRender, CaptionSet }) => {
     const topP = remoteConfig.topP;
     const topK = remoteConfig.topK;
     const prompt = remoteConfig.prompt;
-    const systemInstructions = remoteConfig.systemInstructions;
 
     const resetResults = () => {
         setImgBox('');
@@ -41,8 +40,7 @@ const Results = ({ ImgRender, CaptionSet }) => {
                 try {
                     const functions = getFunctions();
                     const fetchGemini = httpsCallable(functions, 'fetchGemini');
-                    console.log('system instructions:', systemInstructions);
-                    const res = await fetchGemini({ imageBase64, geminiModel, prompt, systemInstructions, temperature, maxTokens, topP, topK });
+                    const res = await fetchGemini({ imageBase64, geminiModel, prompt, temperature, maxTokens, topP, topK });
                     setHist(res.data);
                     console.log('Response data:', res.data);
                     const newCaptionSet = roster(res.data, geminiModel);
@@ -66,7 +64,7 @@ const Results = ({ ImgRender, CaptionSet }) => {
                 try {
                     const functions = getFunctions();
                     const regenCaptions = httpsCallable(functions, 'regenCaptions');
-                    const res = await regenCaptions({ hist, activeTone, temperature, geminiModel, topP, topK });
+                    const res = await regenCaptions({ hist, activeTone, temperature, geminiModel, prompt, topP, topK });
                     console.log('Response data:', res.data);
                     setHist(res.data);
                     const newCaptionSet = roster(res.data, geminiModel);

@@ -16,7 +16,6 @@ const ToneButtons = ({ generationIndex }) => {
 
     useEffect(() => {
         if (workflow === workflowStages.IDLE && lastPressed) {
-            // console.log('setting buttonLoading states to false')
             setButtonLoading({ [lastPressed]: false })
 
         }
@@ -24,18 +23,14 @@ const ToneButtons = ({ generationIndex }) => {
 
 
     const handleToneClick = (toneKey, uniqueKey) => {
-        // console.log(`Tone selected: ${toneKey}`);
         setActiveTone(toneKey);
         setWorkflow(workflowStages.RECAPTIONING);
         lastPressed = uniqueKey;
-        // console.log('setting buttonLoading to true for ', uniqueKey)
         setButtonLoading({ ...buttonLoading, [uniqueKey]: true });
         setButtonPressed({ ...buttonPressed, [uniqueKey]: true });
-        // set all buttons to disabled; option to re-enable selected button
         const newButtonDisabledState = Object.fromEntries(
             Object.keys(tones).map(key => [`${key}-${generationIndex}`, true])
         );
-        // newButtonDisabledState[uniqueKey] = false;
         setButtonDisabled(newButtonDisabledState);
     };
 
@@ -47,7 +42,6 @@ const ToneButtons = ({ generationIndex }) => {
                 <Divider flex={1} h="0.13rem" bg="$textLight300" />
                 <ButtonIcon as={ChevronDown} color="$textLight500" paddingHorizontal="0.5rem" size="18px" />
                 <Text fontSize="1rem" color="$textLight700">Regenerate captions with a twist</Text>
-                {/* <Text fontSize="1rem" color="$textLight700">👇 Regenerate captions with a twist 👇</Text> */}
                 <ButtonIcon as={ChevronDown} color="$textLight500" paddingHorizontal="0.5rem" size="18px" />
                 <Divider flex={1} h="0.13rem" bg="$textLight300" />
             </HStack>

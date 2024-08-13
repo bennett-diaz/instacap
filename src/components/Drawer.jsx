@@ -7,7 +7,6 @@ import Terms from './TermsOfService';
 
 const Drawer = () => {
 
-    // Flatlist imlementation here: https://reactnative.dev/docs/flatlist
     const [showActionsheet, setShowActionsheet] = useState(true)
     const { devMode, setDevMode, selectedContent, setSelectedContent, setTabContent } = useContext(AppContext)
 

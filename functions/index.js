@@ -1,5 +1,6 @@
-/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 /* eslint-disable require-jsdoc */
+/* eslint-disable no-undef */
 /* eslint-disable max-len */
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-multiple-empty-lines */
@@ -28,27 +29,20 @@ const initializeVertexAI = (apiKey, projectId, location) => {
 exports.fetchGemini = onCall(
     {secrets: [geminiApiKeySecret, projectIdSecret]},
     async (data) => {
-      const {imageBase64, systemInstructions, geminiModel, temperature, topP, topK} = data.data;
+      const {imageBase64, prompt, geminiModel, temperature, topP, topK} = data.data;
       try {
         if (!imageBase64) {
           console.log("No image data provided.");
           throw new Error("No image data provided.");
         }
-        console.log(systemInstructions);
+        const {systemInstruction} = prompt;
         const apiKey = geminiApiKeySecret.value();
         const projectId = projectIdSecret.value();
         const location = "us-central1";
-
         const vertexAI = initializeVertexAI(apiKey, projectId, location);
-
         const generativeModel = vertexAI.getGenerativeModel({
           model: geminiModel,
-          systemInstruction: {
-            parts: [
-              {text: "You are an expert social media manager who creates clever Instagram captions."},
-              {text: "The format for this is below: it is important that you stick to this structure.You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]"},
-            ],
-          },
+          systemInstruction: systemInstruction,
         });
 
         const chatSession = generativeModel.startChat({
@@ -67,7 +61,7 @@ exports.fetchGemini = onCall(
             {
               role: "model",
               parts: [
-                {text: "Thanks for the context. Once the user begins requesting captions, I will only respond in json for the conversation, using the structured format you provided"},
+                {text: "Thanks for the context. Once the user begins askuesting captions, I will only respond in json for the conversation, using the structured format you provided"},
               ],
             },
           ],
@@ -92,11 +86,11 @@ exports.fetchGemini = onCall(
 exports.regenCaptions = onCall(
     {secrets: [geminiApiKeySecret, projectIdSecret]},
     async (data) => {
-      const {hist, activeTone, temperature, geminiModel, topP, topK} = data.data;
+      const {hist, activeTone, temperature, geminiModel, prompt, topP, topK} = data.data;
       const apiKey = geminiApiKeySecret.value();
       const projectId = projectIdSecret.value();
       const location = "us-central1";
-
+      const {task} = prompt;
       const vertexAI = initializeVertexAI(apiKey, projectId, location);
       const generativeModel = vertexAI.getGenerativeModel({
         model: geminiModel,
@@ -111,10 +105,10 @@ exports.regenCaptions = onCall(
             topK: topK,
           },
         });
-        let prompt = "Generate 3 caption ideas. Make them ";
-        prompt = prompt + " " + activeTone;
-        const result = await chatSession.sendMessage(prompt);
-        console.log("result:", result);
+        let query = task;
+        query = query + " Make it " + activeTone + "!";
+        console.log("Query:", query);
+        const result = await chatSession.sendMessage(query);
         // await storeinFirestore(result);
         const newHist = chatSession.historyInternal;
         return newHist;
@@ -125,17 +119,20 @@ exports.regenCaptions = onCall(
     },
 );
 
+exports.helloWorld = onRequest((onRequest, response) => {
+  logger.info("Hello logs! From, client", {structuredData: true});
+  response.send("Hello from Firebase! From, server");
+});
+
+
 async function storeinFirestore(captionData) {
   const {text, geminiModel, temperature, captionId} = captionData;
-
   // Ensure captionId is valid and non-empty
   if (!captionId || typeof captionId !== "string" || captionId.trim() === "") {
     throw new Error("Invalid captionId");
   }
 
   const captionRef = db.collection("captions").doc(captionId);
-  console.log("Storing in DB!");
-
   try {
     await captionRef.set({
       text,
@@ -152,8 +149,5 @@ async function storeinFirestore(captionData) {
   }
 }
 
-exports.helloWorld = onRequest((request, response) => {
-  logger.info("Hello logs! From, client", {structuredData: true});
-  response.send("Hello from Firebase! From, server");
-});
+
 
