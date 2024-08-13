@@ -11,7 +11,7 @@ import { useRemote } from '../contexts/remoteConfigContext';
 const Results = ({ ImgRender, CaptionSet }) => {
     const captionUrl = 'https://backend-instacap.onrender.com/api/image/caption';
 
-    const { workflow, setWorkflow, workflowStages, captionSets, setCaptionSets, setTones, activeTone, setActiveTone, summary, setSummary, capErrorMsg } = useResults();
+    const { workflow, setWorkflow, workflowStages, captionSets, setCaptionSets, setTones, activeTone, setActiveTone, summary, setSummary, capErrorMsg, hist, setHist } = useResults();
     console.log('workflow:', workflow)
     const { imgUrl, imgSrc, imgBox, setImgBox, imageBase64 } = useImage();
     const resultsRef = useRef(null);
@@ -70,8 +70,9 @@ const Results = ({ ImgRender, CaptionSet }) => {
                     const functions = getFunctions();
                     const fetchGemini = httpsCallable(functions, 'fetchGemini');
                     const res = await fetchGemini({ imageBase64, geminiModel, prompt, temperature, maxTokens, topP, topK });
-                    return res;
-                    
+                    setHist([res]);
+                    console.log('hist:', hist)
+
                     const newCaptionSet = res.data;
                     const newCaptionArr = Array.isArray(newCaptionSet) ? [newCaptionSet] : [[newCaptionSet]];
                     console.log('NEWCAPTIONSET:', newCaptionArr)
@@ -95,6 +96,12 @@ const Results = ({ ImgRender, CaptionSet }) => {
                 try {
                     const response = await fetchCaptions(captionUrl, capModelId, summary, sumModelId, numCompletions, temperature, activeTone);
                     const newCaptionSet = await parseCaptions(response, false);
+                    
+                    // const functions = getFunctions();
+                    // const regenCaptions = httpsCallable(functions, 'regenCaptions');
+                    // const res = await regenCaptions({hist, activeTone, temperature, topP, topK });
+                    // setHist([...hist, res]);
+
                     setCaptionSets(isEmptyCaptionSet(captionSets) ? [newCaptionSet] : [...captionSets, newCaptionSet]);
                     setWorkflow(workflowStages.IDLE);
 

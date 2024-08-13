@@ -13,6 +13,7 @@ export const ResultsProvider = ({ children }) => {
     };
     const capErrorMsg = 'Something went wrong. Please try again'
 
+    const [hist, setHist] = useState([]);
     const [tones, setTones] = useState([]);
     const [activeTone, setActiveTone] = useState('')
     const [captionSets, setCaptionSets] = useState([]);
@@ -20,7 +21,7 @@ export const ResultsProvider = ({ children }) => {
     const [workflow, setWorkflow] = useState(workflowStages.IDLE || 'idle');
 
     return (
-        <AppContext.Provider value={{ captionSets, setCaptionSets, summary, setSummary, tones, setTones, activeTone, setActiveTone, capErrorMsg, workflow, setWorkflow, workflowStages }}>
+        <AppContext.Provider value={{ hist, setHist,captionSets, setCaptionSets, summary, setSummary, tones, setTones, activeTone, setActiveTone, capErrorMsg, workflow, setWorkflow, workflowStages }}>
             {children}
         </AppContext.Provider>
     );

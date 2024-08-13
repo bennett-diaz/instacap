@@ -91,13 +91,13 @@ exports.getVertex = onCall(
 exports.fetchGemini = onCall(
     {secrets: [geminiApiKeySecret, projectIdSecret]},
     async (data) => {
-      const {imageBase64, systemInstructions, geminiModel, history, tone, temperature, topP, topK} = data.data;
+      const {imageBase64, systemInstructions, geminiModel, temperature, topP, topK} = data.data;
       try {
         if (!imageBase64) {
           console.log("No image data provided.");
           throw new Error("No image data provided.");
         }
-
+        console.log(systemInstructions);
         const apiKey = geminiApiKeySecret.value();
         const projectId = projectIdSecret.value();
         const location = "us-central1";
@@ -152,6 +152,7 @@ exports.fetchGemini = onCall(
         console.log("result:", result);
         storeinFirestore(result);
         const hist = chatSession.historyInternal;
+        console.log("hist:", hist);
         return hist;
       } catch (error) {
         console.error("Error generating captions:", error);
@@ -160,7 +161,32 @@ exports.fetchGemini = onCall(
     },
 );
 
-
+exports.regenCaptions = onCall(
+    async (data) => {
+      const {history, tone, temperature, topP, topK} = data.data;
+      try {
+        const chatSession = generativeModel.startChat({
+          history: history,
+          generationConfig: {
+            maxOutputTokens: 256,
+            temperature: temperature,
+            topP: topP,
+            topK: topK,
+          },
+        });
+        let prompt = "Generate 3 caption ideas";
+        prompt = prompt + " " + tone;
+        const result = await chatSession.sendMessage(prompt);
+        console.log("result:", result);
+        storeinFirestore(result);
+        const hist = chatSession.historyInternal;
+        return hist;
+      } catch (error) {
+        console.error("Error regenerating captions:", error);
+        throw new Error("Failed to regenerate captions.");
+      }
+    },
+);
 
 async function parseCaptions(data, geminiModel, temperature) {
   try {
