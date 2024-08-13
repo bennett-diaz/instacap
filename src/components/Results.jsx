@@ -1,22 +1,15 @@
 import { useContext, useRef, useEffect, useState } from 'react';
 import { Box, Text, Button, ButtonText } from '@gluestack-ui/themed';
 import { fetchSummary, createErrorCaptions, parseCaptions, isEmptyCaptionSet, fetchCaptions } from '../utils/apiUtils'
-import { testFile, callHelloWorld1, callGemini, fetchGemini } from '../utils/geminiApi';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-
-
 
 
 import { useImage } from '../contexts/imageContext';
 import { useResults } from '../contexts/resultsContext';
 import { useRemote } from '../contexts/remoteConfigContext';
 
-const Results1 = ({ ImgRender, CaptionSet }) => {
+const Results = ({ ImgRender, CaptionSet }) => {
     const mode = 'gemini';
-    // const mode = 'openai';
-
-    // const sumLinkUrl = 'https://backend-instacap.onrender.com/api/image/summarizeUrl';
-    // const sumFileUrl = 'https://backend-instacap.onrender.com/api/image/summarizeFIle';
     const captionUrl = 'https://backend-instacap.onrender.com/api/image/caption';
 
     const { workflow, setWorkflow, workflowStages, captionSets, setCaptionSets, setTones, activeTone, setActiveTone, summary, setSummary, capErrorMsg } = useResults();
@@ -47,6 +40,17 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
         setSummary('');
         setActiveTone('');
     }
+
+    const testCloudFunctions = async () => {
+        try {
+            const functions = getFunctions();
+            const helloWorld1 = httpsCallable(functions, 'helloWorld1');
+            const result = await helloWorld1();
+            console.log('callGemini:', result.data);
+        } catch (error) {
+            console.error('Error calling callGemini:', error);
+        }
+    };
 
     useEffect(() => {
         if (workflow === workflowStages.SUMMARIZING) {
@@ -162,4 +166,4 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
     );
 };
 
-export default Results1;
+export default Results;
