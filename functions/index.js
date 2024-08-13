@@ -101,7 +101,7 @@ exports.fetchGemini = onCall(
         const apiKey = geminiApiKeySecret.value();
         const projectId = projectIdSecret.value();
         const location = "us-central1";
-        // console.log(imageBase64, systemInstructions, modelParams, history, tone);
+        // console.log(imageBase64, systemInstructions, modelParams, history, activeTone);
 
         const vertexAI = new VertexAI({
           project: projectId,
@@ -153,7 +153,7 @@ exports.fetchGemini = onCall(
         const hist = chatSession.historyInternal;
         console.log("hist:", hist);
         return hist;
-        storeinFirestore(result);
+      // storeinFirestore(result);
       } catch (error) {
         console.error("Error generating captions:", error);
         throw new Error("Failed to generate captions.");
@@ -162,11 +162,27 @@ exports.fetchGemini = onCall(
 );
 
 exports.regenCaptions = onCall(
+    {secrets: [geminiApiKeySecret, projectIdSecret]},
     async (data) => {
-      const {history, tone, temperature, topP, topK} = data.data;
+      const {hist, activeTone, temperature, topP, topK} = data.data;
+      const apiKey = geminiApiKeySecret.value();
+      const projectId = projectIdSecret.value();
+      const location = "us-central1";
+
+      const vertexAI = new VertexAI({
+        project: projectId,
+        location: location,
+        credentials: {
+          api_key: apiKey,
+        },
+      });
+
+      const generativeModel = vertexAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+      });
       try {
         const chatSession = generativeModel.startChat({
-          history: history,
+          history: hist,
           generationConfig: {
             maxOutputTokens: 256,
             temperature: temperature,
@@ -174,19 +190,77 @@ exports.regenCaptions = onCall(
             topK: topK,
           },
         });
-        let prompt = "Generate 3 caption ideas";
-        prompt = prompt + " " + tone;
+        let prompt = "Generate 3 caption ideas. Make them ";
+        prompt = prompt + " " + activeTone;
         const result = await chatSession.sendMessage(prompt);
         console.log("result:", result);
-        storeinFirestore(result);
-        const hist = chatSession.historyInternal;
-        return hist;
+        // storeinFirestore(result);
+        const newHist = chatSession.historyInternal;
+        return newHist;
       } catch (error) {
         console.error("Error regenerating captions:", error);
         throw new Error("Failed to regenerate captions.");
       }
     },
 );
+
+
+function extractCaptionsManually(capSetString) {
+  const captionRegex = /"chatcmpl-[^"]+"\s*:\s*"([^"]+)"/g;
+  const captions = [];
+  let match;
+
+  while ((match = captionRegex.exec(capSetString)) !== null) {
+    const captionId = `chatcmpl-${Math.random().toString(36).substr(2, 9)}`;
+    captions.push({
+      [captionId]: match[1],
+      capError: false,
+    });
+  }
+
+  return captions.length > 0 ? [captions] : [];
+}
+
+async function storeinFirestore(captionData) {
+  const {text, geminiModel, temperature, captionId} = captionData;
+  // console.log("captionData:", captionData);
+  const captionRef = db.collection("captions").doc(captionId);
+  // console.log("captionRef:", captionRef);
+  console.log("Storing in DB!");
+
+  try {
+    await captionRef.set({
+      text,
+      modelId: geminiModel,
+      temperature,
+      voted: false,
+      timestamp: FieldValue.serverTimestamp(),
+    });
+    // console.log(`Successfully stored caption with ID: ${captionId}`);
+    return captionId;
+  } catch (error) {
+    console.error(`Error storing caption with ID ${captionId}:`, error);
+    throw error;
+  }
+}
+
+exports.helloWorld = onRequest((request, response) => {
+  logger.info("Hello logs! From, client", {structuredData: true});
+  response.send("Hello from Firebase! From, server");
+});
+
+exports.helloWorld1 = onCall((data, context) => {
+  logger.info("Hello logs! From, client on call - HOT", {
+    structuredData: true,
+  });
+  return {message: "Hello on call - HOT RELOAD"};
+});
+
+
+exports.fetchCap1 = onCall((data, context) => {
+  logger.info("Test data for fetch captions", {structuredData: true});
+  return {message: "test data"};
+});
 
 async function parseCaptions(data, geminiModel, temperature) {
   try {
@@ -248,61 +322,3 @@ async function parseCaptions(data, geminiModel, temperature) {
     throw new Error("Failed to generate caption");
   }
 }
-
-function extractCaptionsManually(capSetString) {
-  const captionRegex = /"chatcmpl-[^"]+"\s*:\s*"([^"]+)"/g;
-  const captions = [];
-  let match;
-
-  while ((match = captionRegex.exec(capSetString)) !== null) {
-    const captionId = `chatcmpl-${Math.random().toString(36).substr(2, 9)}`;
-    captions.push({
-      [captionId]: match[1],
-      capError: false,
-    });
-  }
-
-  return captions.length > 0 ? [captions] : [];
-}
-
-async function storeinFirestore(captionData) {
-  const {text, geminiModel, temperature, captionId} = captionData;
-  // console.log("captionData:", captionData);
-  const captionRef = db.collection("captions").doc(captionId);
-  // console.log("captionRef:", captionRef);
-  console.log("Storing in DB!");
-
-  try {
-    await captionRef.set({
-      text,
-      modelId: geminiModel,
-      temperature,
-      voted: false,
-      timestamp: FieldValue.serverTimestamp(),
-    });
-    // console.log(`Successfully stored caption with ID: ${captionId}`);
-    return captionId;
-  } catch (error) {
-    console.error(`Error storing caption with ID ${captionId}:`, error);
-    throw error;
-  }
-}
-
-exports.helloWorld = onRequest((request, response) => {
-  logger.info("Hello logs! From, client", {structuredData: true});
-  response.send("Hello from Firebase! From, server");
-});
-
-exports.helloWorld1 = onCall((data, context) => {
-  logger.info("Hello logs! From, client on call - HOT", {
-    structuredData: true,
-  });
-  return {message: "Hello on call - HOT RELOAD"};
-});
-
-
-exports.fetchCap1 = onCall((data, context) => {
-  logger.info("Test data for fetch captions", {structuredData: true});
-  return {message: "test data"};
-});
-

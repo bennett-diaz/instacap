@@ -71,11 +71,10 @@ const Results = ({ ImgRender, CaptionSet }) => {
                     const fetchGemini = httpsCallable(functions, 'fetchGemini');
                     const res = await fetchGemini({ imageBase64, geminiModel, prompt, temperature, maxTokens, topP, topK });
                     setHist(res.data);
-                    console.log('res.data:', res.data)
-                    const rar = roster(res.data, geminiModel);
-                    const newCaptionSet = rar;
-                    const newCaptionArr = Array.isArray(newCaptionSet) ? [newCaptionSet] : [[newCaptionSet]];
-                    console.log('NEWCAPTIONSET:', newCaptionArr)
+                    console.log('Response data:', res.data);
+                    const newCaptionSet = roster(res.data, geminiModel);
+
+                    console.log('NEWCAPTIONSET:', [newCaptionSet]);
                     setCaptionSets(prevSets =>
                         isEmptyCaptionSet(prevSets) ? [newCaptionSet] : [...prevSets, newCaptionSet]
                     );
@@ -96,15 +95,22 @@ const Results = ({ ImgRender, CaptionSet }) => {
             console.log('RECAPTIONING WORKFLOW AFTER:', activeTone)
             const regenCaptions = async () => {
                 try {
-                    const response = await fetchCaptions(captionUrl, capModelId, summary, sumModelId, numCompletions, temperature, activeTone);
-                    const newCaptionSet = await parseCaptions(response, false);
+                    // const response = await fetchCaptions(captionUrl, capModelId, summary, sumModelId, numCompletions, temperature, activeTone);
+                    // const newCaptionSet = await parseCaptions(response, false);
 
-                    // const functions = getFunctions();
-                    // const regenCaptions = httpsCallable(functions, 'regenCaptions');
-                    // const res = await regenCaptions({hist, activeTone, temperature, topP, topK });
+                    const functions = getFunctions();
+                    const regenCaptions = httpsCallable(functions, 'regenCaptions');
+                    console.log('provided hist:', hist)
+                    const res = await regenCaptions({ hist, activeTone, temperature, topP, topK });
+                    console.log('Response data:', res.data);
                     // setHist([...hist, res]);
-
-                    setCaptionSets(isEmptyCaptionSet(captionSets) ? [newCaptionSet] : [...captionSets, newCaptionSet]);
+                    setHist(res.data);
+                    console.log("new hist", [...hist, res])
+                    const newCaptionSet = roster(res.data, geminiModel);
+                    console.log('NEWCAPTIONSET:', [newCaptionSet]);
+                    setCaptionSets(prevSets =>
+                        isEmptyCaptionSet(prevSets) ? [newCaptionSet] : [...prevSets, newCaptionSet]
+                    );
                     setWorkflow(workflowStages.IDLE);
 
                     // const functions = getFunctions();
