@@ -9,30 +9,26 @@ import { useResults } from '../contexts/resultsContext';
 import { useRemote } from '../contexts/remoteConfigContext';
 
 const Results = ({ ImgRender, CaptionSet }) => {
-    const mode = 'gemini';
     const captionUrl = 'https://backend-instacap.onrender.com/api/image/caption';
 
     const { workflow, setWorkflow, workflowStages, captionSets, setCaptionSets, setTones, activeTone, setActiveTone, summary, setSummary, capErrorMsg } = useResults();
     console.log('workflow:', workflow)
-    const { imgUrl, imgSrc, imgForm, imgBox, setImgBox, imageBase64, setimageBase64 } = useImage();
+    const { imgUrl, imgSrc, imgBox, setImgBox, imageBase64 } = useImage();
     const resultsRef = useRef(null);
 
     const { remoteConfig } = useRemote();
     const numCompletions = remoteConfig.numCompletions;
     const sumModelId = remoteConfig.sumModelId;
-    const temperature = remoteConfig.temperature;
     const capModelId = remoteConfig.capModelId;
     const toneSet = remoteConfig.tones;
-    const gemModel = remoteConfig.gemModel;
-    console.log("gemModel:", gemModel)
+    const temperature = remoteConfig.temperature;
+    const geminiModel = remoteConfig.geminiModel;
+    const maxTokens = remoteConfig.maxTokens;
+    const topP = remoteConfig.topP;
+    const topK = remoteConfig.topK;
+    const prompt = remoteConfig.prompt;
 
-    useEffect(() => {
-        // console.log('remoteConfig:', remoteConfig)
-        // console.log('tones:', toneSet)
-    }, [remoteConfig])
 
-    const SpacerMobile = ({ h = "1rem", w = "1rem" }) => imgBox !== '' ? <Box height={h} width={w} sx={{ "@md": { display: 'none' } }} /> : null;
-    const SpacerWeb = ({ h = "1rem", w = "1rem" }) => imgBox !== '' ? <Box height={h} width={w} display='none' sx={{ "@md": { display: 'flex' } }} /> : null;
 
     const resetResults = () => {
         setImgBox('');
@@ -44,48 +40,47 @@ const Results = ({ ImgRender, CaptionSet }) => {
     const testCloudFunctions = async () => {
         try {
             const functions = getFunctions();
-            const helloWorld1 = httpsCallable(functions, 'helloWorld1');
-            const result = await helloWorld1();
+            const helloWorld = httpsCallable(functions, 'helloWorld');
+            const result = await helloWorld();
             console.log('callGemini:', result.data);
         } catch (error) {
             console.error('Error calling callGemini:', error);
         }
     };
 
+    const SpacerMobile = ({ h = "1rem", w = "1rem" }) => imgBox !== '' ? <Box height={h} width={w} sx={{ "@md": { display: 'none' } }} /> : null;
+    const SpacerWeb = ({ h = "1rem", w = "1rem" }) => imgBox !== '' ? <Box height={h} width={w} display='none' sx={{ "@md": { display: 'flex' } }} /> : null;
+
     useEffect(() => {
         if (workflow === workflowStages.SUMMARIZING) {
             console.log('SUMMARIZING WORKFLOW AFTER:', imgSrc)
             resetResults();
 
-            if (mode === 'gemini') {
-                setSummary('gemini_placeholder');
-                setWorkflow(workflowStages.CAPTIONING);
-                return;
-            }
+            setSummary('gemini_placeholder');
+            setWorkflow(workflowStages.CAPTIONING);
+            return;
         } else if (workflow === workflowStages.CAPTIONING) {
             console.log('CAPTIONING WORKFLOW AFTER:', summary)
-            if (mode === 'gemini') {
-                const generateGeminiCaptions = async () => {
-                    try {
-                        const functions = getFunctions();
-                        const getVertex = httpsCallable(functions, 'getVertex');
-                        const res = await getVertex({ imageBase64 });
-                        const newCaptionSet = res.data;
-                        const newCaptionArr = Array.isArray(newCaptionSet) ? [newCaptionSet] : [[newCaptionSet]];
-                        console.log('NEWCAPTIONSET:', newCaptionArr)
-                        setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionArr : [...captionSets, ...newCaptionArr]);
-                        setWorkflow(workflowStages.IMGRENDER);
-                    } catch (error) {
-                        console.error('Error in Gemini caption generation:', error);
-                        const mockData = createErrorCaptions(numCompletions, capErrorMsg);
-                        const mockCaptionSet = await parseCaptions(mockData, true);
-                        setCaptionSets(isEmptyCaptionSet(captionSets) ? [mockCaptionSet] : [...captionSets, mockCaptionSet]);
-                        setWorkflow(workflowStages.IMGRENDER);
-                    }
-                };
-                generateGeminiCaptions();
-                return;
-            }
+            const generateGeminiCaptions = async () => {
+                try {
+                    const functions = getFunctions();
+                    const getVertex = httpsCallable(functions, 'getVertex');
+                    const res = await getVertex({ imageBase64, geminiModel, prompt, temperature, maxTokens, topP, topK });
+                    const newCaptionSet = res.data;
+                    const newCaptionArr = Array.isArray(newCaptionSet) ? [newCaptionSet] : [[newCaptionSet]];
+                    console.log('NEWCAPTIONSET:', newCaptionArr)
+                    setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionArr : [...captionSets, ...newCaptionArr]);
+                    setWorkflow(workflowStages.IMGRENDER);
+                } catch (error) {
+                    console.error('Error in Gemini caption generation:', error);
+                    const mockData = createErrorCaptions(numCompletions, capErrorMsg);
+                    const mockCaptionSet = await parseCaptions(mockData, true);
+                    setCaptionSets(isEmptyCaptionSet(captionSets) ? [mockCaptionSet] : [...captionSets, mockCaptionSet]);
+                    setWorkflow(workflowStages.IMGRENDER);
+                }
+            };
+            generateGeminiCaptions();
+            return;
 
         }
         else if (workflow === workflowStages.RECAPTIONING) {
@@ -96,6 +91,14 @@ const Results = ({ ImgRender, CaptionSet }) => {
                     const newCaptionSet = await parseCaptions(response, false);
                     setCaptionSets(isEmptyCaptionSet(captionSets) ? [newCaptionSet] : [...captionSets, newCaptionSet]);
                     setWorkflow(workflowStages.IDLE);
+
+                    // const functions = getFunctions();
+                    // const getVertex = httpsCallable(functions, 'getVertex');
+                    // const res = await getVertex({ imageBase64, geminiModel, activeTone, prompt, temperature, maxTokens, topP, topK });
+                    // const newCaptionSet = res.data;
+                    // const newCaptionArr = Array.isArray(newCaptionSet) ? [newCaptionSet] : [[newCaptionSet]];
+                    // console.log('NEWCAPTIONSET:', newCaptionArr)
+                    // setWorkflow(workflowStages.IDLE);
                 } catch (error) {
                     console.log('Error in fetchCaptions endpoint:', error);
                     const mockData = createErrorCaptions(numCompletions, capErrorMsg);

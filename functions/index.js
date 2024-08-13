@@ -5,8 +5,6 @@
 /* eslint-disable no-multiple-empty-lines */
 const {onRequest, onCall} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
-// const {GoogleGenerativeAI} = require("@google/generative-ai");
-// const functions = require("firebase-functions");
 const {defineSecret} = require("firebase-functions/params");
 const admin = require("firebase-admin");
 const {FieldValue} = require("firebase-admin/firestore");
@@ -23,7 +21,7 @@ const db = admin.firestore();
 exports.getVertex = onCall(
     {secrets: [geminiApiKeySecret, projectIdSecret]},
     async (data) => {
-      const {imageBase64} = data.data;
+      const {imageBase64, geminiModel} = data.data;
 
       try {
         if (!imageBase64) {
@@ -32,9 +30,8 @@ exports.getVertex = onCall(
         }
 
         const apiKey = geminiApiKeySecret.value();
-        const projectId = projectIdSecret.value(); // Use the secret here
+        const projectId = projectIdSecret.value();
         const location = "us-central1";
-        const model = "gemini-1.5-flash-001";
 
         const vertexAI = new VertexAI({
           project: projectId,
@@ -45,7 +42,7 @@ exports.getVertex = onCall(
         });
 
         const generativeModel = vertexAI.getGenerativeModel({
-          model: model,
+          model: geminiModel,
           systemInstruction: {
             parts: [
               {text: "You are an expert social media manager who creates clever Instagram captions."},
@@ -93,7 +90,7 @@ exports.getVertex = onCall(
     },
 );
 
-async function parseCaptions(data) {
+async function parseCaptions(data, geminiModel) {
   try {
     console.log("Raw caption string:", JSON.stringify(data, null, 2));
 
@@ -131,7 +128,7 @@ async function parseCaptions(data) {
       try {
         await storeinFirestore({
           text: captionText,
-          modelId: "gemini-1.5-flash",
+          modelId: geminiModel,
           prompt: imageBase64,
           temperature: 1,
           captionId: captionId,
@@ -203,7 +200,7 @@ exports.fetchGemini = onCall(
           try {
             await storeinFirestore({
               text: captionText,
-              modelId: "gemini-1.5-flash",
+              modelId: geminiModel,
               prompt: imageBase64,
               temperature: 1,
               captionId: captionId,
@@ -231,7 +228,7 @@ exports.fetchGemini = onCall(
 
 
 async function storeinFirestore(captionData) {
-  const {text, modelId, temperature, captionId} = captionData;
+  const {text, geminiModel, temperature, captionId} = captionData;
   // console.log("captionData:", captionData);
   const captionRef = db.collection("captions").doc(captionId);
   // console.log("captionRef:", captionRef);
@@ -239,7 +236,7 @@ async function storeinFirestore(captionData) {
   try {
     await captionRef.set({
       text,
-      modelId,
+      modelId: geminiModel,
       temperature,
       voted: false,
       timestamp: FieldValue.serverTimestamp(),
