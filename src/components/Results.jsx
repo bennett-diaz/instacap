@@ -16,18 +16,18 @@ const Results = () => {
     // const fileInfo = testFile(process.env.REACT_APP_API_KEY);
     // console.log(fileInfo);
 
-    useEffect(() => {
-        const initChat = async () => {
-            const apiKey = process.env.REACT_APP_API_KEY;
-            if (apiKey) {
-                const newChat = await startChat(apiKey);
-                setChat(newChat);
-            } else {
-                console.error('API key not found');
-            }
-        };
-        initChat();
-    }, []);
+    // useEffect(() => {
+    //     const initChat = async () => {
+    //         const apiKey = process.env.REACT_APP_API_KEY;
+    //         if (apiKey) {
+    //             const newChat = await startChat(apiKey);
+    //             setChat(newChat);
+    //         } else {
+    //             console.error('API key not found');
+    //         }
+    //     };
+    //     initChat();
+    // }, []);
 
     const handleSend = async () => {
         if (input.trim() && chat) {

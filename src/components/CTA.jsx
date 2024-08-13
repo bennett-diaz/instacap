@@ -128,10 +128,10 @@ const CTA = () => {
             
                     console.log('About to call uploadFile');
                     const functions = getFunctions();
-                    const uploadFile = httpsCallable(functions, 'uploadFile');
-                    
-                    const res = await uploadFile({ imageBase64 });
-                    console.log('uploadFile function called, response:', res.data);
+                    // const uploadFile = httpsCallable(functions, 'uploadFile');
+                    // const res = await uploadFile({ imageBase64 });
+                    const getVertex = httpsCallable(functions, 'getVertex');
+                    const res = await getVertex({ imageBase64 });
     
                     // Handle the response here (e.g., set state with the captions)
     

@@ -8,6 +8,7 @@
     "@gluestack-style/react": "^1.0.17",
     "@gluestack-ui/config": "^1.0.4",
     "@gluestack-ui/themed": "^1.0.34",
+    "@google-cloud/vertexai": "^1.4.1",
     "@google/generative-ai": "^0.16.0",
     "@mui/material": "^5.14.18",
     "@testing-library/jest-dom": "^5.17.0",

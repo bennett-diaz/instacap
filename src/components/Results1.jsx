@@ -1,9 +1,7 @@
 import { useContext, useRef, useEffect, useState } from 'react';
 import { Box, Text, Button, ButtonText } from '@gluestack-ui/themed';
 import { fetchSummary, createErrorCaptions, parseCaptions, isEmptyCaptionSet, fetchCaptions } from '../utils/apiUtils'
-// import { fetchGemini } from '../utils/gemini-captions.mjs';
 import { testFile, callHelloWorld1, callGemini, fetchGemini } from '../utils/geminiApi';
-// import { testFile, callHelloWorld1, callGemini } from '../utils/geminiApi';
 
 
 
@@ -64,8 +62,12 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
                 const generateGeminiCaptions = async () => {
                     try {
                         // const newCaptionSet = await fetchGemini();
-                        const imageDescription = "a blueberry pie";
-                        const newCaptionSet = await fetchGemini(imageDescription);
+                        // const imageDescription = "a blueberry pie";
+                        // const newCaptionSet = await fetchGemini(imageDescription);
+
+                        // const newCaptionSet = await fetchGemini(imageDescription);
+                        console.log('imgBin before fetchGemini:', imgBin);
+                        const newCaptionSet = await fetchGemini(imgBin);
                         console.log('newCaptionSet:', newCaptionSet)
                         setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionSet : [...captionSets, ...newCaptionSet]);
                         setWorkflow(workflowStages.IMGRENDER);

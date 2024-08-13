@@ -37,14 +37,15 @@ export const callGemini = async () => {
     }
 };
 
-export const fetchGemini = async (imageDescription) => {
+export const fetchGemini = async (imgBin) => {
     try {
         const fetchGemini = httpsCallable(functions, 'fetchGemini');
-        console.log('img description sent:', imageDescription);
-        const captionResponse = await fetchGemini({ imageDescription }); 
+        console.log('imgBin sent:', imgBin);
+        
+        const captionResponse = await fetchGemini({ imgBin });
         console.log('fetchGemini:', captionResponse.data);
 
-        const rawCaptionString = captionResponse.data.rawCaptionString; 
+        const rawCaptionString = captionResponse.data.rawCaptionString;
         console.log("Raw caption string:", rawCaptionString);
 
         let parsedCaptions;
