@@ -5,29 +5,23 @@ import { useRemote, defaultTabs } from './contexts/remoteConfigContext'
 import { useAuth } from './contexts/authContext';
 import { ResultsProvider } from './contexts/resultsContext';
 import { AppContext, useLayout } from './contexts/layoutContext';
-import { perf } from './firebaseConfig'
 import { ImageProvider } from "./contexts/imageContext"
-
 import NavBar from './components/NavBar';
 import BottomBar from './components/BottomBar';
 import HeroSection from './components/HeroSection';
 import CTA from './components/CTA';
 import WebOverlay from './components/WebOverlay';
-
 import Results from './components/Results';
 import CaptionSet from './components/CaptionSet';
 import ImgRender from './components/ImgRender';
 import Login from './components/Login';
 import MyAccount from './components/MyAccount';
-
 import Drawer from './components/Drawer';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 
 
-
 function App() {
-
     // app context
     const { curUser } = useAuth();
     const { remoteConfig } = useRemote();
@@ -73,7 +67,6 @@ function App() {
                         <ResultsProvider>
                             <Box flex="1" display="flex" flexDirection="column">
                                 {isWeb && <WebOverlay onClose={handleOverlayClose} />}
-
                                 {/* More Tab */}
                                 {activeTab === (tabs.MoreTab?.fixed_id) && (
                                     <>

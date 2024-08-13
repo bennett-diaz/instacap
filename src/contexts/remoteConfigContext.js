@@ -14,17 +14,17 @@ export const RemoteConfigProvider = ({ children }) => {
                 await activate(myReConfigObj);
                 console.log("myReconfigObj: ", myReConfigObj)
                 const configValues = {
-                    capModelId: getString(myReConfigObj, 'capModelId') || myReConfigObj.defaultConfig.capModelId,
-                    sumModelId: getString(myReConfigObj, 'sumModelId') || myReConfigObj.defaultConfig.sumModelId,
                     numCompletions: getNumber(myReConfigObj, 'numCompletions') || myReConfigObj.defaultConfig.numCompletions,
-                    temperature: getNumber(myReConfigObj, 'temperature') || myReConfigObj.defaultConfig.temperature,
                     tones: safelyGetJson(myReConfigObj, 'tones') || myReConfigObj.defaultConfig.tones,
-                    freqPenalty: getNumber(myReConfigObj, 'freqPenalty') || myReConfigObj.defaultConfig.freqPenalty,
-                    presPenalty: getNumber(myReConfigObj, 'presPenalty') || myReConfigObj.defaultConfig.presPenalty,
-                    maxTokens: getNumber(myReConfigObj, 'maxTokens') || myReConfigObj.defaultConfig.maxTokens,
                     tabs: safelyGetJson(myReConfigObj, 'bottomTabs') || myReConfigObj.defaultConfig.bottomTabs,
                     greeting: getString(myReConfigObj, 'greeting') || myReConfigObj.defaultConfig.greeting,
-                    gemModel: getString(myReConfigObj, 'gemModel') || myReConfigObj.defaultConfig.gemModel,
+                    geminiModel: getString(myReConfigObj, 'geminiModel') || myReConfigObj.defaultConfig.geminiModel,
+                    temperature: getNumber(myReConfigObj, 'temperature') || myReConfigObj.defaultConfig.temperature,
+                    maxTokens: getNumber(myReConfigObj, 'maxTokens') || myReConfigObj.defaultConfig.maxTokens,
+                    topP: getNumber(myReConfigObj, 'topP') || myReConfigObj.defaultConfig.topP,
+                    topK: getNumber(myReConfigObj, 'topK') || myReConfigObj.defaultConfig.topK,
+                    prompt: safelyGetJson(myReConfigObj, 'prompt') || myReConfigObj.defaultConfig.prompt,
+                    systemInstructions: safelyGetJson(myReConfigObj, 'systemInstructions') || myReConfigObj.defaultConfig.systemInstructions,
                 };
                 setRemoteConfig(configValues);
                 confirmRemoteConfigDefaults();
@@ -84,26 +84,39 @@ export const defaultTabs =
     }
 }
 
+export const defaultPrompt = {
+        "systemInstructions": [
+            {
+                "text": "You are an expert social media manager who creates clever Instagram captions."
+            },
+            {
+                "text": "The format for this is below: it is important that you stick to this structure. You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]"
+            }
+        ],
+        "task": "Give me caption ideas for the image or video provided by the user. Each caption should be no longer than 10 words."
+}
+
 myReConfigObj.defaultConfig = ({
-    'welcome_message': 'Welcome',
     'greeting': 'default',
     'tones': { "confident": "bold 💪", "self-deprecating": "cute 🤦", "motivating to join a positive cause": "rally🎗️", "romantic": "luv 💘" },
     'numCompletions': 3,
     'temperature': 1,
-    'capModelId': 'gpt-3.5-turbo',
-    'sumModelId': 'Salesforce/blip-image-captioning-base',
     "bottomTabs": defaultTabs,
     "freqPenalty": 0,
     "presPenalty": 0,
-    "maxTokens": 100,
+    "maxTokens": 300,
+    "topP": 0.96,
+    "topK": 64,
+    "geminiModel": "gemini-1.5-flash",
+    "prompt": defaultPrompt,
 });
 
 
 const confirmRemoteConfigDefaults = () => {
-    const defaultModel = myReConfigObj.defaultConfig.sumModelId
-    const activeModel = getString(myReConfigObj, 'sumModelId')
+    const defaultModel = myReConfigObj.defaultConfig.geminiModel
+    const activeModel = getString(myReConfigObj, 'geminiModel')
     if (defaultModel !== activeModel) {
-        console.log('warning: default sumModel and myReConfigObj sumModel not aligned')
+        console.log('warning: default LLMand myReConfigObj LLM are not equivalent')
         console.log(defaultModel, "vs.", activeModel)
     }
 }
