@@ -82,7 +82,7 @@ const CTA = () => {
                             resolve(blob);
                         },
                         'image/jpeg',
-                        0.8 
+                        0.8
                     );
                 };
                 img.onerror = reject;
@@ -104,15 +104,12 @@ const CTA = () => {
                     const formData = new FormData();
                     formData.append('image', reducedImageBlob, file.name);
                     setImgForm(formData);
-    
+
                     const blobUrl = URL.createObjectURL(file);
                     setImgSrc(blobUrl);
-    
-                    setWorkflow(workflowStages.SUMMARIZING);
-                    setUrlBox('');
-                    setImgUrl('');
-                    setButtonLoading({ ...buttonLoading, [upButtonId]: true });
-    
+
+
+
                     // Use a Promise to read the file
                     const reducedFileBlob = await reduceFile(file);
 
@@ -125,16 +122,19 @@ const CTA = () => {
                         };
                         reader.readAsDataURL(reducedFileBlob);
                     });
-            
+
                     console.log('About to call uploadFile');
+                    setImgBin(imageBase64);
                     const functions = getFunctions();
-                    // const uploadFile = httpsCallable(functions, 'uploadFile');
                     // const res = await uploadFile({ imageBase64 });
                     const getVertex = httpsCallable(functions, 'getVertex');
                     const res = await getVertex({ imageBase64 });
-    
+
                     // Handle the response here (e.g., set state with the captions)
-    
+                    setWorkflow(workflowStages.SUMMARIZING);
+                    setUrlBox('');
+                    setImgUrl('');
+                    setButtonLoading({ ...buttonLoading, [upButtonId]: true });
                 } catch (error) {
                     console.error('Error in image processing:', error);
                     setFileError(true);

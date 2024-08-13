@@ -2,6 +2,8 @@ import { useContext, useRef, useEffect, useState } from 'react';
 import { Box, Text, Button, ButtonText } from '@gluestack-ui/themed';
 import { fetchSummary, createErrorCaptions, parseCaptions, isEmptyCaptionSet, fetchCaptions } from '../utils/apiUtils'
 import { testFile, callHelloWorld1, callGemini, fetchGemini } from '../utils/geminiApi';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
 
 
 
@@ -59,18 +61,21 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
         } else if (workflow === workflowStages.CAPTIONING) {
             console.log('CAPTIONING WORKFLOW AFTER:', summary)
             if (mode === 'gemini') {
-                return;
                 const generateGeminiCaptions = async () => {
                     try {
-                        const imageDescription = "a blueberry pie";
-                        const newCaptionSet = await fetchGemini(imageDescription);
+                        // const imageDescription = "a blueberry pie";
+                        // const newCaptionSet = await fetchGemini(imageDescription);
+                        console.log('imgBin before fetchGemini:', imgBin);
                         // const newCaptionSet = await fetchGemini(imgBin);
-                        // console.log('imgBin before fetchGemini:', imgBin);
-                        // const newCaptionSet = await fetchGemini(imgBin);
+                        return;
+                        const functions = getFunctions();
+                        const getVertex = httpsCallable(functions, 'getVertex');
+                        const newCaptionSet = await getVertex({ imgBin });
+
+                        
                         console.log('NEWCAPTIONSET:', newCaptionSet)
                         setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionSet : [...captionSets, ...newCaptionSet]);
                         setWorkflow(workflowStages.IMGRENDER);
-                        console.log('formData:', imgForm);
                     } catch (error) {
                         console.error('Error in Gemini caption generation:', error);
                         const mockData = createErrorCaptions(numCompletions, capErrorMsg);
