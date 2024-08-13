@@ -1,78 +1,168 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Button, ButtonText } from '@gluestack-ui/themed';
-import { startChat, sendMessage } from '../utils/geminiTemp';
-import { testFile, callHelloWorld1 } from '../utils/geminiApi';
+import { useContext, useRef, useEffect, useState } from 'react';
+import { Box, Text, Button, ButtonText } from '@gluestack-ui/themed';
+import { fetchSummary, createErrorCaptions, parseCaptions, isEmptyCaptionSet, fetchCaptions } from '../utils/apiUtils'
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
+
 import { useImage } from '../contexts/imageContext';
+import { useResults } from '../contexts/resultsContext';
+import { useRemote } from '../contexts/remoteConfigContext';
 
-const Results = () => {
-    const [chat, setChat] = useState(null);
-    const [input, setInput] = useState('');
-    const [messages, setMessages] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+const Results = ({ ImgRender, CaptionSet }) => {
+    const mode = 'gemini';
+    const captionUrl = 'https://backend-instacap.onrender.com/api/image/caption';
 
-    const { urlBox, isUrlBoxValid } = useImage()
+    const { workflow, setWorkflow, workflowStages, captionSets, setCaptionSets, setTones, activeTone, setActiveTone, summary, setSummary, capErrorMsg } = useResults();
+    console.log('workflow:', workflow)
+    const { imgUrl, imgSrc, imgForm, imgBox, setImgBox, imageBase64, setimageBase64 } = useImage();
+    const resultsRef = useRef(null);
 
+    const { remoteConfig } = useRemote();
+    const numCompletions = remoteConfig.numCompletions;
+    const sumModelId = remoteConfig.sumModelId;
+    const temperature = remoteConfig.temperature;
+    const capModelId = remoteConfig.capModelId;
+    const toneSet = remoteConfig.tones;
+    const gemModel = remoteConfig.gemModel;
+    console.log("gemModel:", gemModel)
 
-    // const fileInfo = testFile(process.env.REACT_APP_API_KEY);
-    // console.log(fileInfo);
+    useEffect(() => {
+        // console.log('remoteConfig:', remoteConfig)
+        // console.log('tones:', toneSet)
+    }, [remoteConfig])
 
-    // useEffect(() => {
-    //     const initChat = async () => {
-    //         const apiKey = process.env.REACT_APP_API_KEY;
-    //         if (apiKey) {
-    //             const newChat = await startChat(apiKey);
-    //             setChat(newChat);
-    //         } else {
-    //             console.error('API key not found');
-    //         }
-    //     };
-    //     initChat();
-    // }, []);
+    const SpacerMobile = ({ h = "1rem", w = "1rem" }) => imgBox !== '' ? <Box height={h} width={w} sx={{ "@md": { display: 'none' } }} /> : null;
+    const SpacerWeb = ({ h = "1rem", w = "1rem" }) => imgBox !== '' ? <Box height={h} width={w} display='none' sx={{ "@md": { display: 'flex' } }} /> : null;
 
-    const handleSend = async () => {
-        if (input.trim() && chat) {
-            setIsLoading(true);
-            setMessages(prev => [...prev, { text: input, sender: 'You' }]);
-            setInput('');
-            try {
-                const response = await sendMessage(chat, input);
-                setMessages(prev => [...prev, { text: response, sender: 'Gemini' }]);
-            } catch (error) {
-                console.error('Error sending message:', error);
-            }
-            setIsLoading(false);
+    const resetResults = () => {
+        setImgBox('');
+        setCaptionSets([]);
+        setSummary('');
+        setActiveTone('');
+    }
+
+    const testCloudFunctions = async () => {
+        try {
+            const functions = getFunctions();
+            const helloWorld1 = httpsCallable(functions, 'helloWorld1');
+            const result = await helloWorld1();
+            console.log('callGemini:', result.data);
+        } catch (error) {
+            console.error('Error calling callGemini:', error);
         }
     };
 
+    useEffect(() => {
+        if (workflow === workflowStages.SUMMARIZING) {
+            console.log('SUMMARIZING WORKFLOW AFTER:', imgSrc)
+            resetResults();
 
+            if (mode === 'gemini') {
+                setSummary('gemini_placeholder');
+                setWorkflow(workflowStages.CAPTIONING);
+                return;
+            }
+        } else if (workflow === workflowStages.CAPTIONING) {
+            console.log('CAPTIONING WORKFLOW AFTER:', summary)
+            if (mode === 'gemini') {
+                const generateGeminiCaptions = async () => {
+                    try {
+                        const functions = getFunctions();
+                        const getVertex = httpsCallable(functions, 'getVertex');
+                        const res = await getVertex({ imageBase64 });
+                        const newCaptionSet = res.data;
+                        const newCaptionArr = Array.isArray(newCaptionSet) ? [newCaptionSet] : [[newCaptionSet]];
+                        console.log('NEWCAPTIONSET:', newCaptionArr)
+                        setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionArr : [...captionSets, ...newCaptionArr]);
+                        setWorkflow(workflowStages.IMGRENDER);
+                    } catch (error) {
+                        console.error('Error in Gemini caption generation:', error);
+                        const mockData = createErrorCaptions(numCompletions, capErrorMsg);
+                        const mockCaptionSet = await parseCaptions(mockData, true);
+                        setCaptionSets(isEmptyCaptionSet(captionSets) ? [mockCaptionSet] : [...captionSets, mockCaptionSet]);
+                        setWorkflow(workflowStages.IMGRENDER);
+                    }
+                };
+                generateGeminiCaptions();
+                return;
+            }
+
+        }
+        else if (workflow === workflowStages.RECAPTIONING) {
+            console.log('RECAPTIONING WORKFLOW AFTER:', activeTone)
+            const regenCaptions = async () => {
+                try {
+                    const response = await fetchCaptions(captionUrl, capModelId, summary, sumModelId, numCompletions, temperature, activeTone);
+                    const newCaptionSet = await parseCaptions(response, false);
+                    setCaptionSets(isEmptyCaptionSet(captionSets) ? [newCaptionSet] : [...captionSets, newCaptionSet]);
+                    setWorkflow(workflowStages.IDLE);
+                } catch (error) {
+                    console.log('Error in fetchCaptions endpoint:', error);
+                    const mockData = createErrorCaptions(numCompletions, capErrorMsg);
+                    const mockCaptionSet = await parseCaptions(mockData, true);
+                    setCaptionSets(isEmptyCaptionSet(captionSets) ? [mockCaptionSet] : [...captionSets, mockCaptionSet]);
+                    setWorkflow(workflowStages.IMGRENDER);
+                }
+            };
+            regenCaptions();
+        }
+        else if (workflow === workflowStages.IMGRENDER) {
+            if (!isEmptyCaptionSet(captionSets)) {
+                console.log('RENDERING WORKFLOW AFTER:', Object.values(captionSets[0][0])[0])
+                setImgBox(imgUrl ? imgUrl : imgSrc)
+                try {
+                    if (toneSet) {
+                        setTones(toneSet)
+                    }
+                } catch (error) {
+                    console.error('Error fetching tones:', error);
+                }
+                setWorkflow(workflowStages.IDLE);
+            } else {
+                console.log('RENDERING WORKFLOW: NO CAPTIONS')
+            }
+        }
+        else if (workflow === workflowStages.IDLE) {
+            // console.log('IDLE STATE')
+        }
+    }, [workflow])
 
     return (
-        <div style={{ padding: '16px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {messages.map((msg, index) => (
-                    <p key={index}>
-                        <strong>{msg.sender}: </strong>
-                        {msg.text}
-                    </p>
-                ))}
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Type your message..."
-                    style={{ padding: '8px', marginBottom: '8px' }}
-                />
-                <button
-                    onClick={handleSend}
-                    disabled={isLoading || !chat}
-                    style={{ padding: '8px', cursor: 'pointer' }}
-                >
-                    {isLoading ? 'Sending...' : 'Send'}
-                </button>
-                <Button onPress={callHelloWorld1}>
-                </Button>
-            </div>
-        </div>
+        <Box ref={resultsRef}>
+            <SpacerWeb />
+            <Box
+                mx='1rem'
+                alignItems='center'
+                sx={{
+                    "@md": {
+                        flexDirection: 'row',
+                        alignItems: "flex-start",
+                        justifyContent: 'center'
+                    }
+                }} >
+                <SpacerMobile />
+                <Box flex={1} width='100%'
+                    sx={{
+                        "@md": {
+                            width: '50%',
+                        }
+                    }}>
+                    <ImgRender />
+                </Box>
+                <SpacerMobile />
+                <SpacerWeb />
+                <Box flex={1} width='100%'
+                    sx={{
+                        "@md": {
+                            width: '50%'
+                        }
+                    }}>
+                    <CaptionSet />
+                </Box>
+                <SpacerMobile h="3rem" />
+            </Box>
+            <SpacerWeb />
+        </Box>
     );
 };
 

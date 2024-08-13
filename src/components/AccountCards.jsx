@@ -81,7 +81,7 @@ export const SupportCard = ({ activeColor }) => {
                 <HStack justifyContent="space-between" alignItems="center" width="100%">
                     <HStack>
                         <ButtonIcon as={Scale} color={activeColor} mr="$3" />
-                        <ButtonText fontWeight='$normal'>Terms of use</ButtonText>
+                        <ButtonText fontWeight='$normal'>Terms of service</ButtonText>
                     </HStack>
                     <ButtonIcon as={ExternalLink} color={activeColor} />
                 </HStack>

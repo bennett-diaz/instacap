@@ -16,8 +16,6 @@ const geminiApiKeySecret = defineSecret("GEMINI_API_KEY_SECRET");
 const projectIdSecret = defineSecret("PROJECT_ID");
 const db = admin.firestore();
 
-// If using a single image, place the text prompt after the image.
-// const fileManager = new GoogleAIFileManager(process.env.API_KEY);
 // const acceptedImageTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif'];
 // const acceptedVideoTypes = ['video/mp4', 'video/mpeg', 'video/mov', 'video/avi', 'video/x-flv', 'video/mpg', 'video/webm', 'video/wmv', 'video/3gpp'];
 
@@ -51,7 +49,7 @@ exports.getVertex = onCall(
           systemInstruction: {
             parts: [
               {text: "You are an expert social media manager who creates clever Instagram captions."},
-              {text: "Output three instagram caption ideas for the image or video provied by the user. Each caption should be no longer than 10 words. The format for this is below: it is important that you stick to this structure.You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]"},
+              {text: "The format for this is below: it is important that you stick to this structure.You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]"},
             ],
           },
         });
@@ -83,7 +81,7 @@ exports.getVertex = onCall(
             topK: 64,
           },
         });
-        const result = await chatSession.sendMessage("Hi. Generate some funny captions for the image I provided. ");
+        const result = await chatSession.sendMessage("Give me caption ideas for the image or video provided by the user. Each caption should be no longer than 10 words.");
         console.log("response from Vertex AI:", result);
 
         const parsed = await parseCaptions(result);
