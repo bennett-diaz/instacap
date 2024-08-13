@@ -1,7 +1,8 @@
 # Instacap
 
 Welcome to Instacap! 👋
-This project was build with the Google Gemini API, Firebase, React, and the Gluestack component library.
+<p>This project was build with the Google Gemini API, Firebase, React, and the Gluestack component library.
+<p>Entry into the 2024 Gemini API Developer Competition
 
 ## Relevant files
 - App.jsx: Controls the overall component structure

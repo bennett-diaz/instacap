@@ -1,0 +1,12 @@
+================================================================================
+Instacap
+2024
+
+This project includes software from the FirebaseUI React Components project.
+* Copyright 2017 Google Inc. All Rights Reserved.
+* https://github.com/firebase/firebaseui-web-react
+* Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
+* Modifications: Adjusted CSS styles for branding consistency and modified layout configurations to enhance repsonsive design.
+* See the License for the specific language governing permissions and limitations under the License.
+
+================================================================================

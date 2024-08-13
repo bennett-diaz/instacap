@@ -23,8 +23,7 @@ export const RemoteConfigProvider = ({ children }) => {
                     maxTokens: getNumber(myReConfigObj, 'maxTokens') || myReConfigObj.defaultConfig.maxTokens,
                     topP: getNumber(myReConfigObj, 'topP') || myReConfigObj.defaultConfig.topP,
                     topK: getNumber(myReConfigObj, 'topK') || myReConfigObj.defaultConfig.topK,
-                    prompt: safelyGetJson(myReConfigObj, 'prompt') || myReConfigObj.defaultConfig.prompt,
-                    systemInstructions: safelyGetJson(myReConfigObj, 'systemInstructions') || myReConfigObj.defaultConfig.systemInstructions,
+                    prompt: safelyGetJson(myReConfigObj, 'prompt') || myReConfigObj.defaultConfig.prompt
                 };
                 setRemoteConfig(configValues);
                 confirmRemoteConfigDefaults();
@@ -84,16 +83,12 @@ export const defaultTabs =
     }
 }
 
+
+
+
 export const defaultPrompt = {
-        "systemInstructions": [
-            {
-                "text": "You are an expert social media manager who creates clever Instagram captions."
-            },
-            {
-                "text": "The format for this is below: it is important that you stick to this structure. You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]"
-            }
-        ],
-        "task": "Give me caption ideas for the image or video provided by the user. Each caption should be no longer than 10 words."
+    "systemInstruction": "You are an expert social media manager who creates clever Instagram captions. The format for this is below: it is important that you stick to this structure. You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is:\n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]",
+    "task": "Give me caption ideas for the image or video provided by the user. Each caption should be no longer than 10 words."
 }
 
 myReConfigObj.defaultConfig = ({
