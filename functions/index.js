@@ -36,7 +36,7 @@ const db = admin.firestore();
 exports.getVertex = onCall(
     {secrets: [geminiApiKeySecret, projectIdSecret]},
     async (data) => {
-      console.log("Received data in uploadFile function", data);
+    // console.log("Received data in uploadFile function", data);
       const {imageBase64} = data.data;
       // console.log("imageBase64 received in getVertex:", imageBase64);
 
@@ -59,16 +59,19 @@ exports.getVertex = onCall(
           },
         });
 
-        const generativeVisionModel = vertexAI.getGenerativeModel({
+        const generativeModel = vertexAI.getGenerativeModel({
           model: model,
           systemInstruction: {
-            role: "system",
-            parts: [{text: "`You are an expert social media manager. Output three instagram caption ideas for the provided image or video input. The example below contains the desired output. Here is some context:\n1) The user passes in an image or media file\n2) You then provide a list of three captions using the format provided\n2) If the user requests captions a second time, you return a JSON that contains the original list of three, plus the new three. \n3) You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]`;"}],
+            parts: [
+              {text: "You are an expert social media manager who creates engaging Instagram captions."},
+              {text: "`You are an expert social media manager. Output three instagram caption ideas for the image or video provied by the user. The format for this is below: it is important that you stick to this structure.You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]`;"},
+            ],
           },
         });
 
-        const request = {
-          contents: [
+        // Start a new chat session with the image and initial text prompt
+        const chatSession = generativeModel.startChat({
+          history: [
             {
               role: "user",
               parts: [
@@ -78,20 +81,30 @@ exports.getVertex = onCall(
                     mimeType: "image/jpeg",
                   },
                 },
-                {
-                  text: "Generate captions for this image.",
-                },
+              ],
+            },
+            {
+              role: "model",
+              parts: [
+                {text: "Thanks for the context. Once the user begins requesting captions, I will only respond in json for the conversation, using the structured format you provided"},
               ],
             },
           ],
-        };
+          generationConfig: {
+            maxOutputTokens: 256,
+            temperature: 1,
+            topP: 0.95,
+            topK: 64,
+          },
+        });
+        const result = await chatSession.sendMessage("Hi. Generate some funny captions for the image I provided. ");
 
-        const response = await generativeVisionModel.generateContent(request);
-        console.log("Response from Vertex AI:", response);
-        return response;
+        // Parse the response to extract captions
+        console.log("Response from Vertex AI:", result);
+        return result;
         // const fullTextResponse = response.candidates[0].content.parts[0].text;
 
-        // return {captions: fullTextResponse};
+      // return {captions: fullTextResponse};
       } catch (error) {
         console.error("Error generating captions:", error);
         throw new Error("Failed to generate captions.");
@@ -104,14 +117,14 @@ exports.getVertex = onCall(
 exports.uploadFile = onCall(
     {secrets: [geminiApiKeySecret]},
     async (data) => {
-      console.log("Received data in uploadFile function", data);
+    // console.log("Received data in uploadFile function", data);
       const {imageBase64} = data.data;
       if (!imageBase64) {
         console.error("No image provided");
         throw new Error("No image provided.");
       }
 
-      console.log("Image base64 length:", imageBase64.length);
+      // console.log("Image base64 length:", imageBase64.length);
 
       try {
         const API_KEY = geminiApiKeySecret.value();
@@ -165,8 +178,8 @@ async function generateCaption(model, imageDescription) {
         role: "model",
         parts: [{
           text: "Understood. I'm ready to create clever, engaging Instagram " +
-                "captions based on image descriptions you provide. What's the " +
-                "image you'd like a caption for?",
+            "captions based on image descriptions you provide. What's the " +
+            "image you'd like a caption for?",
         }],
       },
     ],
