@@ -61,6 +61,10 @@ exports.getVertex = onCall(
 
         const generativeVisionModel = vertexAI.getGenerativeModel({
           model: model,
+          systemInstruction: {
+            role: "system",
+            parts: [{text: "`You are an expert social media manager. Output three instagram caption ideas for the provided image or video input. The example below contains the desired output. Here is some context:\n1) The user passes in an image or media file\n2) You then provide a list of three captions using the format provided\n2) If the user requests captions a second time, you return a JSON that contains the original list of three, plus the new three. \n3) You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]`;"}],
+          },
         });
 
         const request = {
@@ -181,7 +185,7 @@ exports.fetchGemini = onCall(
       const genAI = new GoogleGenerativeAI(API_KEY);
       const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
 
-      const imgBin = data.data || data;
+      const imgBin = data.imageDescription || data;
       // console.log("data in fetchGemini:", data);
       // console.log("context in fetchGemini:", context);
       // console.log("imgBin received in fetchGemini:", imgBin);

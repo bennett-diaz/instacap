@@ -59,16 +59,15 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
         } else if (workflow === workflowStages.CAPTIONING) {
             console.log('CAPTIONING WORKFLOW AFTER:', summary)
             if (mode === 'gemini') {
+                return;
                 const generateGeminiCaptions = async () => {
                     try {
-                        // const newCaptionSet = await fetchGemini();
-                        // const imageDescription = "a blueberry pie";
-                        // const newCaptionSet = await fetchGemini(imageDescription);
-
-                        // const newCaptionSet = await fetchGemini(imageDescription);
-                        console.log('imgBin before fetchGemini:', imgBin);
-                        const newCaptionSet = await fetchGemini(imgBin);
-                        console.log('newCaptionSet:', newCaptionSet)
+                        const imageDescription = "a blueberry pie";
+                        const newCaptionSet = await fetchGemini(imageDescription);
+                        // const newCaptionSet = await fetchGemini(imgBin);
+                        // console.log('imgBin before fetchGemini:', imgBin);
+                        // const newCaptionSet = await fetchGemini(imgBin);
+                        console.log('NEWCAPTIONSET:', newCaptionSet)
                         setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionSet : [...captionSets, ...newCaptionSet]);
                         setWorkflow(workflowStages.IMGRENDER);
                         console.log('formData:', imgForm);
