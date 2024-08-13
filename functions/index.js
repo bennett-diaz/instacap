@@ -9,6 +9,7 @@ const {GoogleGenerativeAI} = require("@google/generative-ai");
 const {defineSecret} = require("firebase-functions/params");
 const admin = require("firebase-admin");
 const {FieldValue} = require("firebase-admin/firestore");
+const {GoogleAIFileManager} = require("@google/generative-ai/server");
 
 
 
@@ -18,7 +19,6 @@ const db = admin.firestore();
 
 
 
-// import { GoogleAIFileManager } from "@google/generative-ai/server";
 // const mime = require('mime-types');
 // Using the Google AI SDK for JavaScript directly from a client-side app is recommended for prototyping only. If you plan to enable billing, we strongly recommend that you call the Google AI Gemini API only server-side to keep your API key safe. You risk potentially exposing your API key to malicious actors if you embed your API key directly in your JavaScript app or fetch it remotely at runtime.
 
@@ -41,12 +41,44 @@ const db = admin.firestore();
 //   console.log(`Uploaded file ${uploadResult.file.displayName} as: ${uploadResult.file.uri}`);
 // }
 
+exports.uploadFile = onCall(
+    {secrets: [geminiApiKeySecret]},
+    async (data, context) => {
+      const API_KEY = geminiApiKeySecret.value();
+      const fileManager = new GoogleAIFileManager(API_KEY);
+      const {fileBuffer, mimeType, fileName} = data;
+
+      if (!fileBuffer || !mimeType || !fileName) {
+        throw new Error("Missing required file information");
+      }
+
+      try {
+        // Convert the array back to a Buffer
+        const buffer = Buffer.from(fileBuffer);
+
+        const uploadResult = await fileManager.uploadFile(buffer, {
+          mimeType: mimeType,
+          displayName: fileName,
+        });
+
+        console.log(`Uploaded file ${uploadResult.file.displayName} as: ${uploadResult.file.name}`);
+
+        return {
+          fileUri: uploadResult.file.uri,
+          displayName: uploadResult.file.displayName,
+          name: uploadResult.file.name,
+        };
+      } catch (error) {
+        console.error("Failed to upload file:", error);
+        throw new Error("Failed to upload file: " + error.message);
+      }
+    });
 
 async function storeCaptionInFirestore(captionData) {
   const {text, modelId, prompt, temperature, captionId} = captionData;
-  console.log("captionData:", captionData);
+  // console.log("captionData:", captionData);
   const captionRef = db.collection("captions").doc(captionId);
-  console.log("captionRef:", captionRef);
+  // console.log("captionRef:", captionRef);
 
   try {
     await captionRef.set({
@@ -57,7 +89,7 @@ async function storeCaptionInFirestore(captionData) {
       voted: false,
       timestamp: FieldValue.serverTimestamp(),
     });
-    console.log(`Successfully stored caption with ID: ${captionId}`);
+    // console.log(`Successfully stored caption with ID: ${captionId}`);
     return captionId;
   } catch (error) {
     console.error(`Error storing caption with ID ${captionId}:`, error);
@@ -92,8 +124,6 @@ async function generateCaption(model, imageDescription) {
     topK: 64,
     maxOutputTokens: 256,
   };
-  console.log("generateaption received imageDescripipton of ", imageDescription);
-  console.log("entering generateCaption function");
 
   const systemPrompt = `You are an expert social media manager. Output three instagram caption ideas for the provided image or video input. The example below contains the desired output. Here is some context:\n1) The user passes in an image or media file\n2) You then provide a list of three captions using the format provided\n2) If the user requests captions a second time, you return a JSON that contains the original list of three, plus the new three. \n3) You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]`;
 
@@ -116,7 +146,7 @@ async function generateCaption(model, imageDescription) {
   });
 
   const result = await chatSession.sendMessage(imageDescription);
-  console.log("result:", result);
+  // console.log("chat result:", result);
   return result.response.text();
 }
 
@@ -127,13 +157,9 @@ exports.fetchGemini = onCall(
       const API_KEY = geminiApiKeySecret.value();
       const genAI = new GoogleGenerativeAI(API_KEY);
       const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
-      console.log("entering fetchGemini cloud function");
-      console.log("data:", data);
       logger.info("data", data);
       const {imageDescription} = data.data || data;
       logger.info("data.data:", imageDescription);
-      console.log("imageDescription:", imageDescription);
-      logger.info("imageDescripipton:", imageDescription);
 
       try {
         const captionString = await generateCaption(model, imageDescription);
@@ -162,7 +188,7 @@ exports.fetchGemini = onCall(
               temperature: 1,
               captionId: captionId,
             });
-            console.log(`Caption stored successfully: ${captionId}`);
+            // console.log(`Caption stored successfully: ${captionId}`);
             return captionId;
           } catch (storeError) {
             console.error(`Error storing caption ${captionId}:`, storeError);
@@ -170,8 +196,8 @@ exports.fetchGemini = onCall(
           }
         }));
 
-        const successfullyStored = storedCaptions.filter(id => id !== null);
-        console.log(`Successfully stored ${successfullyStored.length} out of ${parsedCaptions[0].length} captions`);
+        const successfullyStored = storedCaptions.filter((id) => id !== null);
+        // console.log(`Successfully stored ${successfullyStored.length} out of ${parsedCaptions[0].length} captions`);
 
         if (successfullyStored.length !== parsedCaptions[0].length) {
           console.warn("Not all captions were stored successfully");

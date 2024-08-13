@@ -21,7 +21,7 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
 
     const { workflow, setWorkflow, workflowStages, captionSets, setCaptionSets, setTones, activeTone, setActiveTone, summary, setSummary, capErrorMsg } = useResults();
     console.log('workflow:', workflow)
-    const { imgUrl, imgSrc, imgForm, imgBox, setImgBox } = useImage();
+    const { imgUrl, imgSrc, imgForm, imgBox, setImgBox, googleFileUri, setGoogleFileUri } = useImage();
     const resultsRef = useRef(null);
 
     const { remoteConfig } = useRemote();
@@ -69,6 +69,7 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
                         console.log('newCaptionSet:', newCaptionSet)
                         setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionSet : [...captionSets, ...newCaptionSet]);
                         setWorkflow(workflowStages.IMGRENDER);
+                        console.log('formData:', imgForm);
                     } catch (error) {
                         console.error('Error in Gemini caption generation:', error);
                         const mockData = createErrorCaptions(numCompletions, capErrorMsg);
@@ -152,12 +153,6 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
                         }
                     }}>
                     <CaptionSet />
-                    <Button onPress={callHelloWorld1}>
-                        <ButtonText>Call Hello World</ButtonText>
-                    </Button>
-                    <Button onPress={callGemini}>
-                        <ButtonText>Call Gemini</ButtonText>
-                    </Button>
                 </Box>
                 <SpacerMobile h="3rem" />
             </Box>

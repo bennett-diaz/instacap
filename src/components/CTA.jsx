@@ -4,7 +4,10 @@ import { HStack, VStack, Box, Text, Link, LinkText, Button, ButtonText, ButtonIc
 import { Sparkles } from 'lucide-react'
 import { useImage } from '../contexts/imageContext';
 import { useResults } from '../contexts/resultsContext';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
+const functions = getFunctions();
+const uploadFile = httpsCallable(functions, 'uploadFile');
 
 
 
@@ -12,7 +15,7 @@ import { useResults } from '../contexts/resultsContext';
 const CTA = () => {
     const { workflow, setWorkflow, workflowStages } = useResults();
 
-    const { urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, setImgUrl, setImgForm, setImgSrc } = useImage()
+    const { urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, setImgUrl, setImgForm, setImgSrc, googleFileUri, setGoogleFileUri } = useImage()
 
     const [fileError, setFileError] = useState(false);
     const [fileErrorMsg, setFileErrorMsg] = useState('');
@@ -78,13 +81,28 @@ const CTA = () => {
                     setImgForm(formData);
 
                     const blobUrl = URL.createObjectURL(file);
+                    console.log('blobUrl:', blobUrl);
                     setImgSrc(blobUrl);
 
                     setWorkflow(workflowStages.SUMMARIZING);
                     setUrlBox('');
                     setImgUrl('');
                     setButtonLoading({ ...buttonLoading, [upButtonId]: true });
+                    // Read the file as an ArrayBuffer
+                    // const arrayBuffer = await file.arrayBuffer();
 
+                    // Convert ArrayBuffer to Uint8Array
+                    // const uint8Array = new Uint8Array(arrayBuffer);
+
+                    // Call the cloud function to upload the file
+                    // const result = await uploadFile({
+                    //     fileBuffer: Array.from(uint8Array), // Convert Uint8Array to regular array
+                    //     mimeType: file.type,
+                    //     fileName: file.name
+                    // });
+
+                    // const { fileUri, displayName, name } = result.data;
+                    // setGoogleFileUri(fileUri);
 
                 } catch (error) {
                     console.error('Error in image reduction:', error);
