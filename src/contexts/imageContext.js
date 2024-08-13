@@ -12,12 +12,12 @@ export const ImageProvider = ({ children }) => {
     const [imgForm, setImgForm] = useState(null)
     const [imgSrc, setImgSrc] = useState(null)
     const [imgBox, setImgBox] = useState('')
-    const [googleFileUri, setGoogleFileUri] = useState(null);
+    const [imgBin, setImgBin] = useState(null);
 
 
 
     return (
-        <ImageContext.Provider value={{ urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, imgUrl, setImgUrl, imgForm, setImgForm, imgSrc, setImgSrc, imgBox, setImgBox, googleFileUri, setGoogleFileUri }}>
+        <ImageContext.Provider value={{ urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, imgUrl, setImgUrl, imgForm, setImgForm, imgSrc, setImgSrc, imgBox, setImgBox, imgBin, setImgBin }}>
             {children}
         </ImageContext.Provider>
     );

@@ -9,7 +9,7 @@ const {GoogleGenerativeAI} = require("@google/generative-ai");
 const {defineSecret} = require("firebase-functions/params");
 const admin = require("firebase-admin");
 const {FieldValue} = require("firebase-admin/firestore");
-const {GoogleAIFileManager} = require("@google/generative-ai/server");
+// const {GoogleAIFileManager} = require("@google/generative-ai/server");
 
 
 
@@ -41,39 +41,73 @@ const db = admin.firestore();
 //   console.log(`Uploaded file ${uploadResult.file.displayName} as: ${uploadResult.file.uri}`);
 // }
 
+// async function convertImage(imageUrl) {
+//   console.time("\x1b[33m***convertImage Duration\x1b[0m");
+//   try {
+//     const response = await fetch(imageUrl);
+//     const bin = await response.arrayBuffer();
+//     console.timeEnd("\x1b[33m***convertImage Duration\x1b[0m");
+//     return bin;
+//   } catch (err) {
+//     console.timeEnd("\x1b[33m***convertImage Duration\x1b[0m");
+//     throw new Error("Error converting to binary: " + err.message);
+//   }
+// }
+
 exports.uploadFile = onCall(
     {secrets: [geminiApiKeySecret]},
-    async (data, context) => {
-      const API_KEY = geminiApiKeySecret.value();
-      const fileManager = new GoogleAIFileManager(API_KEY);
-      const {fileBuffer, mimeType, fileName} = data;
-
-      if (!fileBuffer || !mimeType || !fileName) {
-        throw new Error("Missing required file information");
+    async (data) => {
+      console.log("Received data in uploadFile function");
+      const {imageBase64} = data.data;
+      if (!imageBase64) {
+        console.error("No image provided");
+        throw new Error("No image provided.");
       }
 
+      console.log("Image base64 length:", imageBase64.length);
+
       try {
-        // Convert the array back to a Buffer
-        const buffer = Buffer.from(fileBuffer);
+        const API_KEY = geminiApiKeySecret.value();
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const model = genAI.getGenerativeModel({model: "gemini-1.5-pro"});
 
-        const uploadResult = await fileManager.uploadFile(buffer, {
-          mimeType: mimeType,
-          displayName: fileName,
-        });
+        console.log("Attempting to generate content with Gemini API");
+        const result = await model.generateContent([
+          "Generate three witty captions for an Instagram post with this image. Format the response as a JSON array of objects, where each object has a unique ID as the key and the caption as the value.",
+          {
+            inlineData: {
+              mimeType: "image/jpeg",
+              data: imageBase64,
+            },
+          },
+        ]);
 
-        console.log(`Uploaded file ${uploadResult.file.displayName} as: ${uploadResult.file.name}`);
-
-        return {
-          fileUri: uploadResult.file.uri,
-          displayName: uploadResult.file.displayName,
-          name: uploadResult.file.name,
-        };
+        console.log("Content generated successfully");
+        const captionString = result.response.text();
+        console.log("Raw caption string:", captionString);
+        return captionString;
       } catch (error) {
-        console.error("Failed to upload file:", error);
-        throw new Error("Failed to upload file: " + error.message);
+        console.error("Error in generateContent:", error);
+        if (error.message.includes("Unable to process input image")) {
+        // If there's an issue with the image, fall back to generating captions without it
+          return generateCaptionsWithoutImage();
+        }
+        throw new Error("Failed to generate captions: " + error.message);
       }
     });
 
+
+async function generateCaptionsWithoutImage() {
+  const API_KEY = geminiApiKeySecret.value();
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  const model = genAI.getGenerativeModel({model: "gemini-1.5-pro"});
+
+  const result = await model.generateContent([
+    "Generate three witty captions for an Instagram post. Format the response as a JSON array of objects, where each object has a unique ID as the key and the caption as the value.",
+  ]);
+
+  return result.response.text();
+}
 async function storeCaptionInFirestore(captionData) {
   const {text, modelId, prompt, temperature, captionId} = captionData;
   // console.log("captionData:", captionData);

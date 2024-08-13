@@ -21,7 +21,7 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
 
     const { workflow, setWorkflow, workflowStages, captionSets, setCaptionSets, setTones, activeTone, setActiveTone, summary, setSummary, capErrorMsg } = useResults();
     console.log('workflow:', workflow)
-    const { imgUrl, imgSrc, imgForm, imgBox, setImgBox, googleFileUri, setGoogleFileUri } = useImage();
+    const { imgUrl, imgSrc, imgForm, imgBox, setImgBox, imgBin, setImgBin } = useImage();
     const resultsRef = useRef(null);
 
     const { remoteConfig } = useRemote();
