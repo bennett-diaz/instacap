@@ -37,11 +37,11 @@ export const callGemini = async () => {
     }
 };
 
-export const fetchGemini = async (imgBin) => {
+export const fetchGemini = async (imageBase64) => {
     try {
         const fetchGemini = httpsCallable(functions, 'fetchGemini');
-        // console.log('imgBin sent:', imgBin);
-        const captionResponse = await fetchGemini({ imgBin });
+        console.log('imageBase64 sent:', imageBase64);
+        const captionResponse = await fetchGemini({ imageBase64 });
         console.log('fetchGemini:', captionResponse.data);
 
         const rawCaptionString = captionResponse.data.rawCaptionString;
@@ -49,7 +49,7 @@ export const fetchGemini = async (imgBin) => {
 
         let parsedCaptions;
         try {
-            parsedCaptions = JSON.parse(rawCaptionString); 
+            parsedCaptions = JSON.parse(rawCaptionString);
         } catch (parseError) {
             console.error("Error parsing JSON:", parseError);
             throw new Error("Invalid JSON format in Gemini response");
@@ -59,7 +59,7 @@ export const fetchGemini = async (imgBin) => {
             throw new Error("Unexpected format in Gemini response");
         }
 
-        return parsedCaptions; 
+        return parsedCaptions;
     } catch (error) {
         console.error("Failed to generate or parse captions:", error.message);
         throw error;

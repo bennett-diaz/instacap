@@ -11,7 +11,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 const CTA = () => {
     const { workflow, setWorkflow, workflowStages } = useResults();
 
-    const { urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, setImgUrl, setImgForm, setImgSrc, imgBin, setImgBin } = useImage()
+    const { urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, setImgUrl, setImgForm, setImgSrc, imageBase64, setimageBase64 } = useImage()
 
     const [fileError, setFileError] = useState(false);
     const [fileErrorMsg, setFileErrorMsg] = useState('');
@@ -124,11 +124,12 @@ const CTA = () => {
                     });
 
                     console.log('About to call uploadFile');
-                    setImgBin(imageBase64);
+                    setimageBase64(imageBase64);
                     const functions = getFunctions();
+                    console.log('WHEN SENT THROUGH CTA', { imageBase64 })
                     // const res = await uploadFile({ imageBase64 });
-                    const getVertex = httpsCallable(functions, 'getVertex');
-                    const res = await getVertex({ imageBase64 });
+                    // const getVertex = httpsCallable(functions, 'getVertex');
+                    // const res = await getVertex({ imageBase64 });
 
                     // Handle the response here (e.g., set state with the captions)
                     setWorkflow(workflowStages.SUMMARIZING);

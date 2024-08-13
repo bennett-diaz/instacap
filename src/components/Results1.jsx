@@ -21,7 +21,7 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
 
     const { workflow, setWorkflow, workflowStages, captionSets, setCaptionSets, setTones, activeTone, setActiveTone, summary, setSummary, capErrorMsg } = useResults();
     console.log('workflow:', workflow)
-    const { imgUrl, imgSrc, imgForm, imgBox, setImgBox, imgBin, setImgBin } = useImage();
+    const { imgUrl, imgSrc, imgForm, imgBox, setImgBox, imageBase64, setimageBase64 } = useImage();
     const resultsRef = useRef(null);
 
     const { remoteConfig } = useRemote();
@@ -63,16 +63,12 @@ const Results1 = ({ ImgRender, CaptionSet }) => {
             if (mode === 'gemini') {
                 const generateGeminiCaptions = async () => {
                     try {
-                        // const imageDescription = "a blueberry pie";
-                        // const newCaptionSet = await fetchGemini(imageDescription);
-                        console.log('imgBin before fetchGemini:', imgBin);
-                        // const newCaptionSet = await fetchGemini(imgBin);
-                        return;
+
+                        // console.log('imageBase64 before getVertex:', imageBase64);
+                        console.log('WHEN SENT THROUGH CTA', { imageBase64 })
                         const functions = getFunctions();
                         const getVertex = httpsCallable(functions, 'getVertex');
-                        const newCaptionSet = await getVertex({ imgBin });
-
-                        
+                        const newCaptionSet = await getVertex({ imageBase64 });
                         console.log('NEWCAPTIONSET:', newCaptionSet)
                         setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionSet : [...captionSets, ...newCaptionSet]);
                         setWorkflow(workflowStages.IMGRENDER);

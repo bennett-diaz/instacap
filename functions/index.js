@@ -11,21 +11,10 @@ const {defineSecret} = require("firebase-functions/params");
 const admin = require("firebase-admin");
 const {FieldValue} = require("firebase-admin/firestore");
 const {VertexAI} = require("@google-cloud/vertexai");
-// const {GoogleAIFileManager} = require("@google/generative-ai/server");
-
-
-
 admin.initializeApp();
 const geminiApiKeySecret = defineSecret("GEMINI_API_KEY_SECRET");
 const projectIdSecret = defineSecret("PROJECT_ID");
-
 const db = admin.firestore();
-
-
-
-// const mime = require('mime-types');
-// Using the Google AI SDK for JavaScript directly from a client-side app is recommended for prototyping only. If you plan to enable billing, we strongly recommend that you call the Google AI Gemini API only server-side to keep your API key safe. You risk potentially exposing your API key to malicious actors if you embed your API key directly in your JavaScript app or fetch it remotely at runtime.
-
 
 // If using a single image, place the text prompt after the image.
 // const fileManager = new GoogleAIFileManager(process.env.API_KEY);
@@ -36,9 +25,7 @@ const db = admin.firestore();
 exports.getVertex = onCall(
     {secrets: [geminiApiKeySecret, projectIdSecret]},
     async (data) => {
-      // console.log("Received data in uploadFile function", data);
       const {imageBase64} = data.data;
-      // console.log("imageBase64 received in getVertex:", imageBase64);
 
       try {
         if (!imageBase64) {
@@ -64,12 +51,11 @@ exports.getVertex = onCall(
           systemInstruction: {
             parts: [
               {text: "You are an expert social media manager who creates engaging Instagram captions."},
-              {text: "You are an expert social media manager. Output three instagram caption ideas for the image or video provied by the user. The format for this is below: it is important that you stick to this structure.You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n];"},
+              {text: "Output three instagram caption ideas for the image or video provied by the user. The format for this is below: it is important that you stick to this structure.You can assume capError to be false for now. For the first key-value pair, generate a unique ID for each caption within the 3 caption set. This unique ID should specify the model used among other identifiers. The key is the actual caption text. An example of the format is: \n\n=example output=\n[\n    [\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring the deep blue 💦\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Into the blue and beyond 🌊\",\n            \"capError\": false\n        },\n        {\n            \"chatcmpl-9qmN3LsjKNm05yrCh7t2o78EVEgC9\": \"Exploring blue horizons 🌊💦\",\n            \"capError\": false\n        }\n    ]\n]"},
             ],
           },
         });
 
-        // Start a new chat session with the image and initial text prompt
         const chatSession = generativeModel.startChat({
           history: [
             {
@@ -98,13 +84,10 @@ exports.getVertex = onCall(
           },
         });
         const result = await chatSession.sendMessage("Hi. Generate some funny captions for the image I provided. ");
+        // console.log("response from Vertex AI:", result);
 
-        // Parse the response to extract captions
-        console.log("Response from Vertex AI:", result);
-        return result;
-        // const fullTextResponse = response.candidates[0].content.parts[0].text;
-
-        // return {captions: fullTextResponse};
+        const parsed = await parseCaptions(result);
+        return parsed;
       } catch (error) {
         console.error("Error generating captions:", error);
         throw new Error("Failed to generate captions.");
@@ -112,22 +95,83 @@ exports.getVertex = onCall(
     },
 );
 
+async function parseCaptions(data) {
+  try {
+    console.log("Raw caption string:", JSON.stringify(data, null, 2));
 
-//
+    if (!data.response || !data.response.candidates || !data.response.candidates[0]) {
+      throw new Error("Unexpected response structure");
+    }
+
+    const capSetString = data.response.candidates[0].content.parts[0].text;
+    console.log("capSetString:", capSetString);
+
+    let parsedCaptions;
+    try {
+      // Parse the string content of result
+      parsedCaptions = JSON.parse(capSetString);
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+      throw new Error("Invalid JSON format in Gemini response");
+    }
+
+    if (!Array.isArray(parsedCaptions) || parsedCaptions.length === 0 || !Array.isArray(parsedCaptions[0])) {
+      throw new Error("Unexpected format in Gemini response");
+    }
+
+    const captions = parsedCaptions[0];
+
+    const storedCaptions = await Promise.all(captions.map(async (captionObj) => {
+      const captionId = Object.keys(captionObj)[0];
+      const captionText = captionObj[captionId];
+      if (captionObj.capError) {
+        console.warn(`Caption ${captionId} has an error flag`);
+        return null;
+      }
+      try {
+        await storeinFirestore({
+          text: captionText,
+          modelId: "gemini-1.5-flash",
+          prompt: imageBase64,
+          temperature: 1,
+          captionId: captionId,
+        });
+        return captionId;
+      } catch (storeError) {
+        console.error(`Error storing caption ${captionId}:`, storeError);
+        return null;
+      }
+    }));
+
+    const successfullyStored = storedCaptions.filter((id) => id !== null);
+
+    if (successfullyStored.length !== captions.length) {
+      console.warn("Not all captions were stored successfully");
+    }
+
+    return {result: captions, storedCaptions: successfullyStored};
+  } catch (error) {
+    console.error("Failed to generate captions:", error);
+    throw new Error("Failed to generate caption");
+  }
+}
+
 exports.fetchGemini = onCall(
     {secrets: [geminiApiKeySecret, projectIdSecret]},
     async (data, context) => {
-      const imgBin = data.data || data;
-      // console.log("imgBin received in fetchGemini:", imgBin);
+      const imageBase64 = data.data || data;
+      // console.log("imageBase64 received in fetchGemini:", imageBase64);
 
       try {
-        const {rawCaptionString} = await getVertex(imgBin);
-        logger.info("Raw caption string:", rawCaptionString);
+        const {result} = await getVertex(imageBase64);
+        logger.info("Raw caption string:", result);
+        const capSet = result.candidates[0].content.parts[0].text; // Ensure the response matches the expected format
+        console.log("capSet:", capSet);
 
 
         let parsedCaptions;
         try {
-          parsedCaptions = JSON.parse(captionString);
+          parsedCaptions = JSON.parse(capSet);
         } catch (parseError) {
           console.error("Error parsing JSON:", parseError);
           throw new Error("Invalid JSON format in Gemini response");
@@ -141,10 +185,10 @@ exports.fetchGemini = onCall(
           const captionId = Object.keys(captionObj)[0];
           const captionText = captionObj[captionId];
           try {
-            await storeCaptionInFirestore({
+            await storeinFirestore({
               text: captionText,
               modelId: "gemini-1.5-flash",
-              prompt: imgBin,
+              prompt: imageBase64,
               temperature: 1,
               captionId: captionId,
             });
@@ -161,7 +205,7 @@ exports.fetchGemini = onCall(
           console.warn("Not all captions were stored successfully");
         }
 
-        return {rawCaptionString: captionString, storedCaptions: successfullyStored};
+        return {result: parseCaptions, storedCaptions: successfullyStored};
       } catch (error) {
         logger.error("Failed to generate captions:", error);
         throw new Error("Failed to generate caption");
@@ -170,9 +214,8 @@ exports.fetchGemini = onCall(
 );
 
 
-//
-async function storeCaptionInFirestore(captionData) {
-  const {text, modelId, prompt, temperature, captionId} = captionData;
+async function storeinFirestore(captionData) {
+  const {text, modelId, temperature, captionId} = captionData;
   // console.log("captionData:", captionData);
   const captionRef = db.collection("captions").doc(captionId);
   // console.log("captionRef:", captionRef);
@@ -181,7 +224,6 @@ async function storeCaptionInFirestore(captionData) {
     await captionRef.set({
       text,
       modelId,
-      prompt,
       temperature,
       voted: false,
       timestamp: FieldValue.serverTimestamp(),
