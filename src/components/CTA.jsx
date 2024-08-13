@@ -4,9 +4,6 @@ import { HStack, VStack, Box, Text, Link, LinkText, Button, ButtonText, ButtonIc
 import { Sparkles } from 'lucide-react'
 import { useImage } from '../contexts/imageContext';
 import { useResults } from '../contexts/resultsContext';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-
-
 
 const CTA = () => {
     const { workflow, setWorkflow, workflowStages } = useResults();
@@ -107,12 +104,7 @@ const CTA = () => {
 
                     const blobUrl = URL.createObjectURL(file);
                     setImgSrc(blobUrl);
-
-
-
-                    // Use a Promise to read the file
                     const reducedFileBlob = await reduceFile(file);
-
                     const imageBase64 = await new Promise((resolve) => {
                         const reader = new FileReader();
                         reader.onloadend = () => {
@@ -125,12 +117,7 @@ const CTA = () => {
 
                     console.log('About to call uploadFile');
                     setimageBase64(imageBase64);
-                    const functions = getFunctions();
-                    // const res = await uploadFile({ imageBase64 });
-                    // const getVertex = httpsCallable(functions, 'getVertex');
-                    // const res = await getVertex({ imageBase64 });
-
-                    // Handle the response here (e.g., set state with the captions)
+    
                     setWorkflow(workflowStages.SUMMARIZING);
                     setUrlBox('');
                     setImgUrl('');

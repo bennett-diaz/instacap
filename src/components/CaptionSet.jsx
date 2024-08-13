@@ -10,12 +10,11 @@ const CaptionSet = () => {
     const { workflow, setWorkflow, workflowStages, captionSets } = useResults()
 
     const latestCaptionRef = useRef(null);
-    const voteUrl = 'https://backend-instacap.onrender.com/api/image/vote';
+    const voteUrl = 'sample_url';
 
 
     // scroll to the last Bubble of the latest caption set; trigger once image has rendered
     useEffect(() => {
-        console.log('cationSets', captionSets);
         if (workflow === workflowStages.IDLE) {
             if (captionSets.length > 0 && latestCaptionRef.current) {
                 latestCaptionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });

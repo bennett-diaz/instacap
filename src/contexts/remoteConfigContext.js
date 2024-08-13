@@ -14,8 +14,6 @@ export const RemoteConfigProvider = ({ children }) => {
                 await activate(myReConfigObj);
                 console.log("myReconfigObj: ", myReConfigObj)
                 const configValues = {
-                    capModelId: getString(myReConfigObj, 'capModelId') || myReConfigObj.defaultConfig.capModelId,
-                    sumModelId: getString(myReConfigObj, 'sumModelId') || myReConfigObj.defaultConfig.sumModelId,
                     numCompletions: getNumber(myReConfigObj, 'numCompletions') || myReConfigObj.defaultConfig.numCompletions,
                     tones: safelyGetJson(myReConfigObj, 'tones') || myReConfigObj.defaultConfig.tones,
                     tabs: safelyGetJson(myReConfigObj, 'bottomTabs') || myReConfigObj.defaultConfig.bottomTabs,
@@ -26,6 +24,7 @@ export const RemoteConfigProvider = ({ children }) => {
                     topP: getNumber(myReConfigObj, 'topP') || myReConfigObj.defaultConfig.topP,
                     topK: getNumber(myReConfigObj, 'topK') || myReConfigObj.defaultConfig.topK,
                     prompt: safelyGetJson(myReConfigObj, 'prompt') || myReConfigObj.defaultConfig.prompt,
+                    systemInstructions: safelyGetJson(myReConfigObj, 'systemInstructions') || myReConfigObj.defaultConfig.systemInstructions,
                 };
                 setRemoteConfig(configValues);
                 confirmRemoteConfigDefaults();
@@ -98,13 +97,10 @@ export const defaultPrompt = {
 }
 
 myReConfigObj.defaultConfig = ({
-    'welcome_message': 'Welcome',
     'greeting': 'default',
     'tones': { "confident": "bold 💪", "self-deprecating": "cute 🤦", "motivating to join a positive cause": "rally🎗️", "romantic": "luv 💘" },
     'numCompletions': 3,
     'temperature': 1,
-    'capModelId': 'gpt-3.5-turbo',
-    'sumModelId': 'Salesforce/blip-image-captioning-base',
     "bottomTabs": defaultTabs,
     "freqPenalty": 0,
     "presPenalty": 0,
@@ -116,13 +112,11 @@ myReConfigObj.defaultConfig = ({
 });
 
 
-
-
 const confirmRemoteConfigDefaults = () => {
-    const defaultModel = myReConfigObj.defaultConfig.sumModelId
-    const activeModel = getString(myReConfigObj, 'sumModelId')
+    const defaultModel = myReConfigObj.defaultConfig.geminiModel
+    const activeModel = getString(myReConfigObj, 'geminiModel')
     if (defaultModel !== activeModel) {
-        console.log('warning: default sumModel and myReConfigObj sumModel not aligned')
+        console.log('warning: default LLMand myReConfigObj LLM are not equivalent')
         console.log(defaultModel, "vs.", activeModel)
     }
 }
