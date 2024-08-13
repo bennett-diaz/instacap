@@ -1,5 +1,35 @@
 import { isUrlValid, formDataHasImage } from './imageUtils';
 
+export const roster = (hist, modelId) => {
+    const generateUniqueId = (modelId) => {
+        return `${modelId}-${Math.random().toString(36).substr(2, 9)}`;
+    };
+
+    const lastModelResponse = hist
+        .filter(item => item.role === 'model')
+        .pop();
+
+    if (!lastModelResponse) {
+        return [];
+    }
+
+    try {
+        const parsedCaptions = JSON.parse(lastModelResponse.parts[0].text);
+        // Remove the extra array wrapping
+        return parsedCaptions[0].map(caption => {
+            const uniqueId = generateUniqueId(modelId);
+            const [originalId] = Object.keys(caption);
+            return {
+                [uniqueId]: caption[originalId],
+                capError: caption.capError
+            };
+        });
+    } catch (error) {
+        console.error("Error parsing captions:", error);
+        return [];
+    }
+}
+
 export const fetchSummary = async (imgUrl, imgForm, sumLinkUrl, sumFileUrl, sumModelId) => {
     try {
         let fetchConfig;

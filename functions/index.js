@@ -150,10 +150,10 @@ exports.fetchGemini = onCall(
         });
         const result = await chatSession.sendMessage("Give me caption ideas for the image or video provided by the user. Each caption should be no longer than 10 words.");
         console.log("result:", result);
-        storeinFirestore(result);
         const hist = chatSession.historyInternal;
         console.log("hist:", hist);
         return hist;
+        storeinFirestore(result);
       } catch (error) {
         console.error("Error generating captions:", error);
         throw new Error("Failed to generate captions.");

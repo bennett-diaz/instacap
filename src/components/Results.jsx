@@ -1,6 +1,6 @@
 import { useContext, useRef, useEffect, useState } from 'react';
 import { Box, Text, Button, ButtonText } from '@gluestack-ui/themed';
-import { fetchSummary, createErrorCaptions, parseCaptions, isEmptyCaptionSet, fetchCaptions } from '../utils/apiUtils'
+import { fetchSummary, createErrorCaptions, parseCaptions, isEmptyCaptionSet, fetchCaptions, roster } from '../utils/apiUtils'
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 
@@ -66,17 +66,19 @@ const Results = ({ ImgRender, CaptionSet }) => {
                     // const functions = getFunctions();
                     // const getVertex = httpsCallable(functions, 'getVertex');
                     // const res = await getVertex({ imageBase64, geminiModel, prompt, temperature, maxTokens, topP, topK });
-                    
+
                     const functions = getFunctions();
                     const fetchGemini = httpsCallable(functions, 'fetchGemini');
                     const res = await fetchGemini({ imageBase64, geminiModel, prompt, temperature, maxTokens, topP, topK });
-                    setHist([res]);
-                    console.log('hist:', hist)
-
-                    const newCaptionSet = res.data;
+                    setHist(res.data);
+                    console.log('res.data:', res.data)
+                    const rar = roster(res.data, geminiModel);
+                    const newCaptionSet = rar;
                     const newCaptionArr = Array.isArray(newCaptionSet) ? [newCaptionSet] : [[newCaptionSet]];
                     console.log('NEWCAPTIONSET:', newCaptionArr)
-                    setCaptionSets(isEmptyCaptionSet(captionSets) ? newCaptionArr : [...captionSets, ...newCaptionArr]);
+                    setCaptionSets(prevSets =>
+                        isEmptyCaptionSet(prevSets) ? [newCaptionSet] : [...prevSets, newCaptionSet]
+                    );
                     setWorkflow(workflowStages.IMGRENDER);
                 } catch (error) {
                     console.error('Error in Gemini caption generation:', error);
@@ -96,7 +98,7 @@ const Results = ({ ImgRender, CaptionSet }) => {
                 try {
                     const response = await fetchCaptions(captionUrl, capModelId, summary, sumModelId, numCompletions, temperature, activeTone);
                     const newCaptionSet = await parseCaptions(response, false);
-                    
+
                     // const functions = getFunctions();
                     // const regenCaptions = httpsCallable(functions, 'regenCaptions');
                     // const res = await regenCaptions({hist, activeTone, temperature, topP, topK });
