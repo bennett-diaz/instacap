@@ -14,10 +14,8 @@ import HeroSection from './components/HeroSection';
 import CTA from './components/CTA';
 import WebOverlay from './components/WebOverlay';
 
-import Results from './components/Results';
-import Results1 from './components/Results1';
+import Results1 from './components/Results';
 import CaptionSet from './components/CaptionSet';
-import CaptionSet1 from './components/CaptionSet1';
 import ImgRender from './components/ImgRender';
 import Login from './components/Login';
 import MyAccount from './components/MyAccount';
