@@ -3,10 +3,10 @@ import { useResults } from '../contexts/resultsContext';
 import { Box } from '@gluestack-ui/themed';
 import ToneButtons from './ToneButtons';
 import Bubble from './Bubble';
-import { handleVote } from '../utils/apiUtils'
+// import { handleVote } from '../utils/apiUtils'
 
 
-const CaptionSet = () => {
+const CaptionSet1 = () => {
     const { workflow, setWorkflow, workflowStages, captionSets } = useResults()
 
     const latestCaptionRef = useRef(null);
@@ -15,7 +15,6 @@ const CaptionSet = () => {
 
     // scroll to the last Bubble of the latest caption set; trigger once image has rendered
     useEffect(() => {
-        console.log('cationSets', captionSets);
         if (workflow === workflowStages.IDLE) {
             if (captionSets.length > 0 && latestCaptionRef.current) {
                 latestCaptionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -30,8 +29,8 @@ const CaptionSet = () => {
     const onVote = async (capId) => {
         console.log('Vote pressed for caption ID: ', capId);
         try {
-            const result = await handleVote(voteUrl, capId);
-            console.log('Vote result:', result);
+            // const result = await handleVote(voteUrl, capId);
+            // console.log('Vote result:', result);
         } catch (error) {
             console.error('Error in onVote:', error);
         }
@@ -45,7 +44,6 @@ const CaptionSet = () => {
     };
 
 
-    // Defining functions directly in JSX, like in your map call within renderCaptionsUser, can lead to performance issues since these functions are re-created on every render. Instead, define these functions outside the JSX or turn them into a component if they have JSX to return.
     const renderCaptionsUser = () => {
         return captionSets.map((captionGeneration, genIndex) => (
             <React.Fragment key={genIndex}>
@@ -78,4 +76,4 @@ const CaptionSet = () => {
 };
 
 
-export default CaptionSet;
+export default CaptionSet1;

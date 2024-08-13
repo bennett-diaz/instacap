@@ -12,10 +12,12 @@ export const ImageProvider = ({ children }) => {
     const [imgForm, setImgForm] = useState(null)
     const [imgSrc, setImgSrc] = useState(null)
     const [imgBox, setImgBox] = useState('')
+    const [imageBase64, setimageBase64] = useState(null);
+
 
 
     return (
-        <ImageContext.Provider value={{ urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, imgUrl, setImgUrl, imgForm, setImgForm, imgSrc, setImgSrc, imgBox, setImgBox }}>
+        <ImageContext.Provider value={{ urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, imgUrl, setImgUrl, imgForm, setImgForm, imgSrc, setImgSrc, imgBox, setImgBox, imageBase64, setimageBase64 }}>
             {children}
         </ImageContext.Provider>
     );

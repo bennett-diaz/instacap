@@ -2,6 +2,7 @@ import "firebase/compat/auth";
 import compatApp from "firebase/compat/app";
 import { getRemoteConfig } from 'firebase/remote-config';
 import { getPerformance } from "firebase/performance";
+// import { getAuth } from "firebase/auth";
 
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 import { getFirestore } from 'firebase/firestore';
@@ -9,7 +10,7 @@ import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
     apiKey: "AIzaSyAJjD0525MWsFEBtBuk5DpSIhzkjY7eli8",
-    authDomain: "instacap-gemini-firebase.firebaseapp.com",
+    authDomain: "instacap.ai",
     projectId: "instacap-gemini-firebase",
     storageBucket: "instacap-gemini-firebase.appspot.com",
     messagingSenderId: "640160133965",

@@ -1,7 +1,7 @@
 /* this hides the anonymous login option */
-.firebaseui-idp-button[data-provider-id="anonymous"] {
+/* .firebaseui-idp-button[data-provider-id="anonymous"] {
     display: none !important;
-}
+} */
 
 /* this is the overall container for the firebase ui snippet */
 .firebaseui-container {

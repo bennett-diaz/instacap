@@ -4,15 +4,14 @@ import { HStack, VStack, Box, Text, Link, LinkText, Button, ButtonText, ButtonIc
 import { Sparkles } from 'lucide-react'
 import { useImage } from '../contexts/imageContext';
 import { useResults } from '../contexts/resultsContext';
-
-
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 
 
 const CTA = () => {
     const { workflow, setWorkflow, workflowStages } = useResults();
 
-    const { urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, setImgUrl, setImgForm, setImgSrc } = useImage()
+    const { urlBox, setUrlBox, isUrlBoxValid, setIsUrlBoxValid, setImgUrl, setImgForm, setImgSrc, imageBase64, setimageBase64 } = useImage()
 
     const [fileError, setFileError] = useState(false);
     const [fileErrorMsg, setFileErrorMsg] = useState('');
@@ -23,6 +22,7 @@ const CTA = () => {
     const genButtonId = "urlGenerate"
     const [buttonLoading, setButtonLoading] = useState({});
     const [buttonDisabled, setButtonDisabled] = useState({});
+    const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
         if (workflow === workflowStages.IDLE) {
@@ -63,6 +63,34 @@ const CTA = () => {
         }
     }
 
+    const reduceFile = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const elem = document.createElement('canvas');
+                    const scaleFactor = 0.5; // Adjust this to control image size
+                    elem.width = img.width * scaleFactor;
+                    elem.height = img.height * scaleFactor;
+                    const ctx = elem.getContext('2d');
+                    ctx.drawImage(img, 0, 0, elem.width, elem.height);
+                    ctx.canvas.toBlob(
+                        (blob) => {
+                            resolve(blob);
+                        },
+                        'image/jpeg',
+                        0.8
+                    );
+                };
+                img.onerror = reject;
+            };
+            reader.onerror = reject;
+        });
+    };
+
     const onFileUpload = async (event) => {
         const file = event.target.files[0];
         setFileError(false);
@@ -80,14 +108,35 @@ const CTA = () => {
                     const blobUrl = URL.createObjectURL(file);
                     setImgSrc(blobUrl);
 
+
+
+                    // Use a Promise to read the file
+                    const reducedFileBlob = await reduceFile(file);
+
+                    const imageBase64 = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64 = reader.result.split(',')[1];
+                            console.log('Base64 length:', base64.length);
+                            resolve(base64);
+                        };
+                        reader.readAsDataURL(reducedFileBlob);
+                    });
+
+                    console.log('About to call uploadFile');
+                    setimageBase64(imageBase64);
+                    const functions = getFunctions();
+                    // const res = await uploadFile({ imageBase64 });
+                    // const getVertex = httpsCallable(functions, 'getVertex');
+                    // const res = await getVertex({ imageBase64 });
+
+                    // Handle the response here (e.g., set state with the captions)
                     setWorkflow(workflowStages.SUMMARIZING);
                     setUrlBox('');
                     setImgUrl('');
                     setButtonLoading({ ...buttonLoading, [upButtonId]: true });
-
-
                 } catch (error) {
-                    console.error('Error in image reduction:', error);
+                    console.error('Error in image processing:', error);
                     setFileError(true);
                     setFileErrorMsg('Error processing image.');
                 }
