@@ -173,7 +173,7 @@ const CTA = () => {
             </Text>
         </Box>
 
-        <HStack display='none' width="100%" gap="1rem" paddingHorizontal="1rem" paddingVertical="1rem"
+        {/* <HStack display='none' width="100%" gap="1rem" paddingHorizontal="1rem" paddingVertical="1rem"
             sx={{
                 "@md": { display: 'flex' }
             }}>
@@ -196,7 +196,7 @@ const CTA = () => {
                     <ButtonIcon as={Sparkles} ml="0.5rem" size="18px" />
                 }
             </Button>
-        </HStack>
+        </HStack> */}
 
         <VStack width="100%" justifyContent='center' alignItems='center' paddingTop="0.5rem" paddingBottom="0.5rem" paddingHorizontal="1rem">
             <FormControl isInvalid={fileError} alignItems='center' >

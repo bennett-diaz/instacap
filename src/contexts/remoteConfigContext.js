@@ -102,7 +102,7 @@ myReConfigObj.defaultConfig = ({
     "maxTokens": 300,
     "topP": 0.96,
     "topK": 64,
-    "geminiModel": "gemini-1.5-flash",
+    "geminiModel": "gemini-2.0-flash",
     "prompt": defaultPrompt,
 });
 

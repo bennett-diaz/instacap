@@ -13,10 +13,10 @@ export const createErrorCaptions = (numCompletions, capErrorMsg, modelId) => {
         const uniqueId = generateUniqueId(modelId);
         return {
             [uniqueId]: capErrorMsg,
-            capError: true 
+            capError: true
         };
     });
-    return mockCaptions; 
+    return mockCaptions;
 };
 
 export const roster = (hist, modelId) => {
@@ -33,7 +33,12 @@ export const roster = (hist, modelId) => {
     }
 
     try {
-        const parsedCaptions = JSON.parse(lastModelResponse.parts[0].text);
+        let raw = lastModelResponse.parts[0].text.trim();
+        if (raw.startsWith("```")) {
+            raw = raw.replace(/^```json\s*|^```\s*/, '').replace(/```$/, '');
+        }
+
+        const parsedCaptions = JSON.parse(raw);
         return parsedCaptions[0].map(caption => {
             const uniqueId = generateUniqueId(modelId);
             const [originalId] = Object.keys(caption);
