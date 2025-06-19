@@ -29,8 +29,6 @@ export const myAuthObj = compatApp.auth()
 export const myReConfigObj = getRemoteConfig();
 export const db = getFirestore();
 
-// export const myAuthObj = getAuth(app);
-// export const analytics = getAnalytics(app);
 
 
 if (process.env.NODE_ENV === 'development') {

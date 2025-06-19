@@ -55,13 +55,13 @@ const WebOverlay = ({ onClose }) => {
                                 <Text fontSize="1rem" color='$white' pt='0.5rem'>Scan the code with your smart phone, no download required</Text>
                             </VStack>
                         </HStack>
-                        <VStack alignItems="start" justifyContent="center" width="100%" py="1rem">
+                        {/* <VStack alignItems="start" justifyContent="center" width="100%" py="1rem">
                             <Button onPress={onClose} variant="link" action="secondary">
                                 <ButtonText fontSize="1rem" underline="true" fontWeight="$normal" color="rgba(255, 255, 255, 0.7)">
                                     Continue to the web version
                                 </ButtonText>
                             </Button>
-                        </VStack>
+                        </VStack> */}
                     </VStack>
                 </HStack>
             </LinearGradient>
