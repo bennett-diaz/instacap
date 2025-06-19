@@ -24,7 +24,6 @@ compatApp.initializeApp(firebaseConfig);
 
 export const functions = getFunctions();
 export const perf = getPerformance();
-// export const myPerformanceObj = getPerformance();
 export const myAuthObj = compatApp.auth()
 export const myReConfigObj = getRemoteConfig();
 export const db = getFirestore();
